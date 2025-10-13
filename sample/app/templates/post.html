@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+{% block content %}
+  <article class="media content-section">
+    <div class="media-body">
+      <div class="article-metadata">
+        <a class="mr-2" href="#">{{ post.author.username }}</a>
+        <small class="text-muted">{{ post.date_posted.strftime('%Y-%m-%d %H:%M') }}</small>
+        {% if post.author == current_user %}
+          <div>
+            <form action="{{ url_for('delete_post', post_id=post.id) }}" method="POST">
+              <input class="btn btn-danger btn-sm mt-1 mb-1" type="submit" value="삭제">
+            </form>
+          </div>
+        {% endif %}
+      </div>
+      <h2 class="article-title">{{ post.title }}</h2>
+      <p class="article-content">{{ post.content }}</p>
+    </div>
+  </article>
+
+  <div class="comment-section content-section">
+    <h3>댓글</h3>
+    <hr>
+    {% for comment in comments %}
+      <div class="media mb-3">
+        <div class="media-body">
+          <strong>{{ comment.author.username }}</strong>
+          <small class="text-muted">{{ comment.date_posted.strftime('%Y-%m-%d %H:%M') }}</small>
+          <p>{{ comment.content }}</p>
+        </div>
+      </div>
+    {% else %}
+      <p>아직 댓글이 없습니다.</p>
+    {% endfor %}
+    <hr>
+    {% if current_user.is_authenticated %}
+      <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-4">댓글 남기기</legend>
+            <div class="form-group">
+                {{ form.content(class="form-control") }}
+            </div>
+        </fieldset>
+        <div class="form-group mt-3">
+            {{ form.submit(class="btn btn-outline-info") }}
+        </div>
+      </form>
+    {% else %}
+      <a href="{{ url_for('login', next=request.url) }}">로그인</a> 후 댓글을 남길 수 있습니다.
+    {% endif %}
+  </div>
+{% endblock content %}
