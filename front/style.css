@@ -1,0 +1,5 @@
+body { background:#f8f9fa; }
+.hero { background:linear-gradient(180deg, #f8f9fa 0%, #ffffff 60%); }
+.card-mentor { transition: transform .08s ease, box-shadow .08s ease; }
+.card-mentor:hover { transform: translateY(-2px); box-shadow:0 .5rem 1rem rgba(0,0,0,.08); }
+.empty { border:1px dashed #ced4da; border-radius:.75rem; background:#fff; }
