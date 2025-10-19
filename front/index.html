@@ -35,19 +35,9 @@
     </div>
   </header>
 
-  <main class="container my-5">
-    <h2 class="h4 mb-3">추천 멘토</h2>
-    <div id="homeRecommended" class="row g-3"></div>
-  </main>
+  <!-- (추천 멘토 섹션 완전히 제거) -->
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="app.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const container = document.getElementById('homeRecommended');
-      const picks = SAMPLE_DATA.filter(x => x.role==='mentor').slice(0,3);
-      container.innerHTML = picks.map(m => renderCard(m)).join('');
-    });
-  </script>
 </body>
 </html>
