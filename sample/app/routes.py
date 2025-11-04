@@ -16,6 +16,9 @@ def register():
         return redirect(url_for('home'))
     form = RegistrationForm()
     if form.validate_on_submit():
+        if form.invite_code.data != '54321':
+            flash('인증 코드가 올바르지 않습니다.', 'danger')
+            return render_template('register.html', title='회원가입', form=form)
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         user = User(username=form.username.data, password=hashed_password)
         db.session.add(user)
