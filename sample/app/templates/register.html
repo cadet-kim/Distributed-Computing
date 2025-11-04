@@ -5,6 +5,8 @@
             {{ form.hidden_tag() }}
             <fieldset class="form-group">
                 <legend class="border-bottom mb-4">회원가입</legend>
+
+                {# 아이디 #}
                 <div class="form-group mb-3">
                     {{ form.username.label(class="form-control-label") }}
                     {% if form.username.errors %}
@@ -15,9 +17,26 @@
                             {% endfor %}
                         </div>
                     {% else %}
-                        {{ form.username(class="form-control form-control-lg") }}
+                        {{ form.username(class="form-control form-control-lg", placeholder="영문/숫자/언더스코어 4~20자") }}
                     {% endif %}
                 </div>
+
+                {# 사용자 이름(표시명) - 새로 추가 #}
+                <div class="form-group mb-3">
+                    {{ form.display_name.label(class="form-control-label") }}
+                    {% if form.display_name.errors %}
+                        {{ form.display_name(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.display_name.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.display_name(class="form-control form-control-lg", placeholder="예: 김정현") }}
+                    {% endif %}
+                </div>
+
+                {# 비밀번호 #}
                 <div class="form-group mb-3">
                     {{ form.password.label(class="form-control-label") }}
                     {% if form.password.errors %}
@@ -31,6 +50,8 @@
                         {{ form.password(class="form-control form-control-lg") }}
                     {% endif %}
                 </div>
+
+                {# 비밀번호 확인 #}
                 <div class="form-group mb-3">
                     {{ form.confirm_password.label(class="form-control-label") }}
                     {% if form.confirm_password.errors %}
@@ -44,6 +65,8 @@
                         {{ form.confirm_password(class="form-control form-control-lg") }}
                     {% endif %}
                 </div>
+
+                {# 초대/인증 코드 #}
                 <div class="form-group mb-3">
                     {{ form.invite_code.label(class="form-control-label") }}
                     {% if form.invite_code.errors %}
@@ -63,9 +86,11 @@
             </div>
         </form>
     </div>
+
     <div class="border-top pt-3">
         <small class="text-muted">
             이미 계정이 있으신가요? <a class="ml-2" href="{{ url_for('login') }}">로그인</a>
         </small>
     </div>
 {% endblock content %}
+
