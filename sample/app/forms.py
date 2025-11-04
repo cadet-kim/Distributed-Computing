@@ -7,6 +7,7 @@ class RegistrationForm(FlaskForm):
     username = StringField('사용자 이름', validators=[DataRequired(), Length(min=2, max=20)])
     password = PasswordField('비밀번호', validators=[DataRequired(), Length(min=4)])
     confirm_password = PasswordField('비밀번호 확인', validators=[DataRequired(), EqualTo('password', message='비밀번호가 일치하지 않습니다.')])
+    invite_code = StringField('인증 코드', validators=[DataRequired(), Length(min=5, max=5, message='5자리 코드를 입력해야 합니다.')])
     submit = SubmitField('가입하기')
 
     def validate_username(self, username):
