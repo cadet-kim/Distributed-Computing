@@ -1,6 +1,6 @@
 from flask import render_template, url_for, flash, redirect, request, abort
 from app import app, db, bcrypt
-from app.forms import RegistrationForm, LoginForm, PostForm, CommentForm
+from app.forms import RegistrationForm, LoginForm, PostForm, CommentForm, ProfileForm  # ← ProfileForm 추가
 from app.models import User, Post, Comment
 from flask_login import login_user, current_user, logout_user, login_required
 
@@ -86,3 +86,29 @@ def delete_post(post_id):
     db.session.commit()
     flash('게시글이 삭제되었습니다.', 'success')
     return redirect(url_for('home'))
+
+# ====== 여기부터 신규: 프로필 보기/수정 ======
+@app.route("/profile", methods=['GET', 'POST'])
+@login_required
+def profile():
+    form = ProfileForm()
+    if form.validate_on_submit():
+        current_user.company = form.company.data
+        current_user.grade = form.grade.data
+        current_user.real_name = form.real_name.data
+        current_user.birthdate = form.birthdate.data
+        current_user.specialty = form.specialty.data
+        db.session.commit()
+        flash("프로필이 저장되었습니다.", "success")
+        return redirect(url_for("profile"))
+
+    # GET일 때 현재 값 채우기
+    if request.method == "GET":
+        form.company.data = current_user.company
+        form.grade.data = current_user.grade
+        form.real_name.data = current_user.real_name
+        form.birthdate.data = current_user.birthdate
+        form.specialty.data = current_user.specialty
+
+    return render_template("profile.html", title="내 프로필", form=form)
+# ============================================

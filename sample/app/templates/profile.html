@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="content-section">
+  <h3 class="mb-3">내 프로필</h3>
+
+  <div class="mb-3 small text-muted">
+    <div><strong>중대:</strong> {{ current_user.company or '-' }}</div>
+    <div><strong>학년:</strong> {{ current_user.grade or '-' }}</div>
+    <div><strong>이름:</strong> {{ current_user.real_name or '-' }}</div>
+    <div><strong>생년월일:</strong> {{ current_user.birthdate or '-' }}</div>
+    <div><strong>특징:</strong> {{ current_user.specialty or '-' }}</div>
+  </div>
+  <hr>
+
+  <form method="POST">
+    {{ form.hidden_tag() }}
+    <div class="row g-3">
+      <div class="col-md-3">{{ form.company.label(class="form-label") }}{{ form.company(class="form-control") }}</div>
+      <div class="col-md-3">{{ form.grade.label(class="form-label") }}{{ form.grade(class="form-control") }}</div>
+      <div class="col-md-3">{{ form.real_name.label(class="form-label") }}{{ form.real_name(class="form-control") }}</div>
+      <div class="col-md-3">{{ form.birthdate.label(class="form-label") }}{{ form.birthdate(class="form-control", placeholder="YYYY-MM-DD") }}</div>
+      <div class="col-12">{{ form.specialty.label(class="form-label") }}{{ form.specialty(class="form-control") }}</div>
+    </div>
+    <div class="mt-3">{{ form.submit(class="btn btn-primary") }}</div>
+  </form>
+</div>
+{% endblock %}

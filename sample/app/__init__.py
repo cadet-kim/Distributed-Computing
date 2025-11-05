@@ -14,3 +14,6 @@ login_manager.login_message_category = 'info'
 login_manager.login_message = "로그인이 필요한 페이지입니다."
 
 from app import routes
+from flask_migrate import Migrate
+migrate = Migrate(app, db)
+from app import models

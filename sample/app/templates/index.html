@@ -1,16 +1,25 @@
 {% extends "layout.html" %}
 {% block content %}
-    <h1 class="mb-4">전체 게시글</h1>
-    {% for post in posts %}
-        <article class="media content-section">
-          <div class="media-body">
-            <div class="article-metadata">
-              <a class="mr-2" href="#">{{ post.author.username }}</a>
-              <small class="text-muted">{{ post.date_posted.strftime('%Y-%m-%d') }}</small>
-            </div>
-            <h2><a class="article-title" href="{{ url_for('post', post_id=post.id) }}">{{ post.title }}</a></h2>
-            <p class="article-content">{{ post.content | truncate(150) }}</p>
-          </div>
-        </article>
-    {% endfor %}
+  <h1 class="mb-4">전체 게시글</h1>
+
+  {% for post in posts %}
+    <article class="media content-section">
+      <div class="media-body">
+        <div class="article-metadata">
+          <!-- 작성자 표시: 실명(없으면 username) · 중대/학년 · 날짜 -->
+          <span class="me-2">
+            {{ post.author.real_name or post.author.username }}
+            {% if post.author.company %} · {{ post.author.company }}{% endif %}
+            {% if post.author.grade %} {{ post.author.grade }}{% endif %}
+          </span>
+          <small class="text-muted">{{ post.date_posted.strftime('%Y-%m-%d') }}</small>
+        </div>
+
+        <h2 class="mt-1">
+          <a class="article-title" href="{{ url_for('post', post_id=post.id) }}">{{ post.title }}</a>
+        </h2>
+        <p class="article-content">{{ post.content | truncate(150) }}</p>
+      </div>
+    </article>
+  {% endfor %}
 {% endblock content %}

@@ -10,8 +10,14 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), unique=True, nullable=False)
     password = db.Column(db.String(60), nullable=False)
+    company = db.Column(db.String(20))        
+    grade = db.Column(db.String(10))          
+    real_name = db.Column(db.String(50))      
+    birthdate = db.Column(db.Date)            
+    specialty = db.Column(db.String(200))     
     posts = db.relationship('Post', backref='author', lazy=True)
     comments = db.relationship('Comment', backref='author', lazy=True)
+    
 
     def __repr__(self):
         return f"User('{self.username}')"

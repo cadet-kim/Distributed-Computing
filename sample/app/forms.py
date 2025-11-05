@@ -7,6 +7,8 @@ from wtforms.validators import (
     Regexp, Optional   # ✅ 추가: Regexp, Optional
 )
 from app.models import User
+from wtforms.fields import DateField
+from wtforms.validators import DataRequired, Length, EqualTo, ValidationError, Regexp, Optional
 
 
 class RegistrationForm(FlaskForm):
@@ -66,4 +68,13 @@ class PostForm(FlaskForm):
 class CommentForm(FlaskForm):
     content = TextAreaField('댓글 내용', validators=[DataRequired()], render_kw={"placeholder": "댓글을 입력하세요..."})
     submit = SubmitField('댓글 등록')
+    
 
+class ProfileForm(FlaskForm):
+    company   = StringField('중대', validators=[Optional(), Length(max=20)])
+    grade     = StringField('학년', validators=[Optional(), Length(max=10)])
+    real_name = StringField('이름', validators=[Optional(), Length(max=50)])
+    birthdate = DateField('생년월일', format='%Y-%m-%d', validators=[Optional()])
+    specialty = StringField('특징(잘하는 분야)', validators=[Optional(), Length(max=200)])
+    submit    = SubmitField('저장')
+    submit    = SubmitField('저장')
