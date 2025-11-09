@@ -1,25 +1,60 @@
 {% extends "layout.html" %}
 {% block content %}
-  <h1 class="mb-4">전체 게시글</h1>
 
-  {% for post in posts %}
-    <article class="media content-section">
-      <div class="media-body">
-        <div class="article-metadata">
-          <!-- 작성자 표시: 실명(없으면 username) · 중대/학년 · 날짜 -->
-          <span class="me-2">
-            {{ post.author.real_name or post.author.username }}
-            {% if post.author.company %} · {{ post.author.company }}{% endif %}
-            {% if post.author.grade %} {{ post.author.grade }}{% endif %}
-          </span>
-          <small class="text-muted">{{ post.date_posted.strftime('%Y-%m-%d') }}</small>
-        </div>
+  <!-- 제목 + (선택) 새 글 버튼 -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">전체 게시글</h1>
+    {% if current_user.is_authenticated %}
+      <a href="{{ url_for('new_post') }}" class="btn btn-primary btn-sm">
+        새 글 작성
+      </a>
+    {% endif %}
+  </div>
 
-        <h2 class="mt-1">
-          <a class="article-title" href="{{ url_for('post', post_id=post.id) }}">{{ post.title }}</a>
+  {% if posts %}
+    <!-- 게시글 목록: 예쁜 카드 리스트 -->
+    <div class="vstack gap-3">
+      {% for post in posts %}
+  <article class="card shadow-sm border-0 {% if post.applicant_id %}applied-card{% endif %}">
+    <div class="card-body d-flex justify-content-between align-items-center">
+
+      <!-- 왼쪽: 제목 + 작성자 + 날짜 -->
+      <div>
+        <h2 class="h5 mb-1">
+          <a class="text-decoration-none text-dark"
+             href="{{ url_for('post', post_id=post.id) }}">
+            {{ post.title }}
+          </a>
         </h2>
-        <p class="article-content">{{ post.content | truncate(150) }}</p>
+        <div class="small text-muted">
+          작성자: {{ post.author.real_name or post.author.username }} · 
+          {{ post.date_posted.strftime('%Y-%m-%d') }}
+        </div>
+        {% if post.applicant_id %}
+          <div class="small text-muted">
+            신청자: {{ post.applicant.real_name or post.applicant.username }}
+          </div>
+        {% endif %}
       </div>
-    </article>
-  {% endfor %}
+
+      <!-- 오른쪽: 상태 뱃지 -->
+      <div>
+        {% if post.applicant_id %}
+          <span class="badge bg-secondary">신청 완료</span>
+        {% else %}
+          <span class="badge bg-success">신청 가능</span>
+        {% endif %}
+      </div>
+
+    </div>
+  </article>
+{% endfor %}
+
+
+
+    </div>
+  {% else %}
+    <p class="text-muted">아직 등록된 게시글이 없습니다. 첫 글을 작성해 보세요.</p>
+  {% endif %}
+
 {% endblock content %}
