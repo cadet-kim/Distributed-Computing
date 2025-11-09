@@ -1,7 +1,7 @@
 from flask import render_template, url_for, flash, redirect, request, abort
 from app import app, db, bcrypt
-from app.forms import RegistrationForm, LoginForm, PostForm, CommentForm, ProfileForm  # ← ProfileForm 추가
-from app.models import User, Post, Comment
+from app.forms import RegistrationForm, LoginForm, PostForm, ProfileForm  # ← ProfileForm 추가
+from app.models import User, Post
 from flask_login import login_user, current_user, logout_user, login_required
 
 @app.route("/")
@@ -62,19 +62,17 @@ def new_post():
 
 @app.route("/post/<int:post_id>", methods=['GET', 'POST'])
 def post(post_id):
+    # 1. 해당 ID의 게시글이 없으면 404 에러
     post = Post.query.get_or_404(post_id)
-    form = CommentForm()
-    if form.validate_on_submit():
-        if not current_user.is_authenticated:
-            flash('댓글을 작성하려면 로그인이 필요합니다.', 'warning')
-            return redirect(url_for('login', next=request.url))
-        comment = Comment(content=form.content.data, author=current_user, post=post)
-        db.session.add(comment)
-        db.session.commit()
-        flash('댓글이 등록되었습니다.', 'success')
-        return redirect(url_for('post', post_id=post.id))
-    comments = Comment.query.filter_by(post_id=post.id).order_by(Comment.date_posted.asc()).all()
-    return render_template('post.html', title=post.title, post=post, comments=comments, form=form)
+
+    # 2. 게시글 상세 페이지 렌더링
+    #    - 템플릿에서는 post.title, post.content, post.author, post.applicant 등을 사용할 수 있음
+    #    - 댓글 기능은 제거했으므로 comments, form 같은 값은 넘기지 않는다.
+    return render_template(
+        'post.html',
+        title=post.title,
+        post=post
+    )
 
 @app.route("/post/<int:post_id>/delete", methods=['POST'])
 @login_required

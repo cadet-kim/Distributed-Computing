@@ -38,7 +38,7 @@
     </div>
   </article>
 
-  <div class="comment-section content-section">
+  {#<div class="comment-section content-section">
     <h3>댓글</h3>
     <hr>
     {% for comment in comments %}
@@ -69,5 +69,5 @@
     {% else %}
       <a href="{{ url_for('login', next=request.url) }}">로그인</a> 후 댓글을 남길 수 있습니다.
     {% endif %}
-  </div>
+  </div>#}
 {% endblock content %}
