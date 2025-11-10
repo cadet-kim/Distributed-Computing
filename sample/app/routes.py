@@ -3,6 +3,14 @@ from app import app, db, bcrypt
 from app.forms import RegistrationForm, LoginForm, PostForm, ProfileForm  # ← ProfileForm 추가
 from app.models import User, Post
 from flask_login import login_user, current_user, logout_user, login_required
+from werkzeug.utils import secure_filename
+from config import Config
+from datetime import datetime
+import os
+
+UPLOAD_FOLDER = os.path.join(os.getcwd(), 'app', 'static', 'profile_pics')
+
+
 
 @app.route("/")
 @app.route("/home")
@@ -89,26 +97,34 @@ def delete_post(post_id):
 @app.route("/profile", methods=['GET', 'POST'])
 @login_required
 def profile():
-    form = ProfileForm()
-    if form.validate_on_submit():
-        current_user.company = form.company.data
-        current_user.grade = form.grade.data
-        current_user.real_name = form.real_name.data
-        current_user.birthdate = form.birthdate.data
-        current_user.specialty = form.specialty.data
+    if request.method == "POST":
+        # --- 1️⃣ 파일 업로드 ---
+        file = request.files.get('image')
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            current_user.image_file = filename
+
+        # --- 2️⃣ 폼 데이터 ---
+        current_user.real_name = request.form.get('real_name')
+        current_user.company = request.form.get('company')
+        current_user.grade = request.form.get('grade')
+        current_user.specialty = request.form.get('specialty')
+
+        # ✅ 문자열 → date 변환
+        birth_str = request.form.get('birthdate')
+        if birth_str:
+            try:
+                current_user.birthdate = datetime.strptime(birth_str, "%Y-%m-%d").date()
+            except ValueError:
+                flash("생년월일 형식이 잘못되었습니다. YYYY-MM-DD 형태로 입력하세요.", "warning")
+
         db.session.commit()
-        flash("프로필이 저장되었습니다.", "success")
+        flash("프로필이 성공적으로 수정되었습니다!", "success")
         return redirect(url_for("profile"))
 
-    # GET일 때 현재 값 채우기
-    if request.method == "GET":
-        form.company.data = current_user.company
-        form.grade.data = current_user.grade
-        form.real_name.data = current_user.real_name
-        form.birthdate.data = current_user.birthdate
-        form.specialty.data = current_user.specialty
+    return render_template("profile.html", title="내 프로필", user=current_user)
 
-    return render_template("profile.html", title="내 프로필", form=form)
 # ============================================
 @app.route("/post/<int:post_id>/apply", methods=['POST'])
 @login_required

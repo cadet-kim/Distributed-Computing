@@ -17,7 +17,8 @@ class User(db.Model, UserMixin):
     specialty = db.Column(db.String(200))     
     posts = db.relationship('Post', foreign_keys='Post.user_id', backref='author', lazy='dynamic')
     posts_applied_to = db.relationship('Post', foreign_keys='Post.applicant_id', backref='applicant', lazy='dynamic')
-    comments = db.relationship('Comment', backref='applicant', lazy='dynamic')
+    comments = db.relationship('Comment', backref='applicant', lazy='dynamic')  
+    image_file = db.Column(db.String(100), nullable=False, default='default.jpg')
 
     @property
     def mentor_activity_count(self):
