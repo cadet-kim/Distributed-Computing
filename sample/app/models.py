@@ -15,7 +15,7 @@ class User(db.Model, UserMixin):
     real_name = db.Column(db.String(50))      
     birthdate = db.Column(db.Date)            
     specialty = db.Column(db.String(200))     
-    posts = db.relationship('Post', backref='author', lazy=True)
+    posts = db.relationship('Post', foreign_keys='Post.user_id', backref='author', lazy=True)
     comments = db.relationship('Comment', backref='author', lazy=True)
     
 
@@ -29,6 +29,8 @@ class Post(db.Model):
     content = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     comments = db.relationship('Comment', backref='post', lazy=True, cascade="all, delete-orphan")
+    applicant_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    applicant = db.relationship('User', foreign_keys=[applicant_id])
 
     def __repr__(self):
         return f"Post('{self.title}', '{self.date_posted}')"

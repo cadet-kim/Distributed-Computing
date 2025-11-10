@@ -12,6 +12,26 @@
             </form>
           </div>
         {% endif %}
+        <div class="mt-3">
+          {% if post.applicant_id %}
+            {# 1. 신청자가 이미 있는 경우 (신청 완료) #}
+            <button class="btn btn-secondary" disabled>신청 완료</button>
+            <span class="ms-2 text-muted">
+              ({{ post.applicant.real_name or post.applicant.username }} 님이 신청)
+            </span>
+          
+          {% elif current_user.is_authenticated and post.author != current_user %}
+            {# 2. 신청자가 없고, 로그인했고, 작성자가 아닌 경우 -> '신청하기' 버튼 #}
+            <form action="{{ url_for('apply_post', post_id=post.id) }}" method="POST">
+              <input class="btn btn-info" type="submit" value="신청하기">
+            </form>
+          
+          {% elif current_user.is_authenticated and post.author == current_user %}
+            {# 3. (선택) 작성자에게는 '신청 대기 중'이라고 표시 #}
+            <button class="btn btn-outline-secondary" disabled>신청 대기 중</button>
+
+          {% endif %}
+        </div>
       </div>
       <h2 class="article-title">{{ post.title }}</h2>
       <p class="article-content">{{ post.content }}</p>

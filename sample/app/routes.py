@@ -112,3 +112,23 @@ def profile():
 
     return render_template("profile.html", title="내 프로필", form=form)
 # ============================================
+@app.route("/post/<int:post_id>/apply", methods=['POST'])
+@login_required
+def apply_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    
+    # 1. 자기 자신의 글에는 신청 불가
+    if post.author == current_user:
+        flash('자신의 게시글에 신청할 수 없습니다.', 'danger')
+        return redirect(url_for('post', post_id=post.id))
+        
+    # 2. 이미 다른 사람이 신청(마감)했는지 확인
+    if post.applicant_id:
+        flash('이미 신청이 마감된 게시글입니다.', 'warning')
+        return redirect(url_for('post', post_id=post.id))
+
+    # 3. 신청 처리 (게시글의 applicant_id를 현재 로그인한 사용자로 설정)
+    post.applicant_id = current_user.id
+    db.session.commit()
+    flash('신청이 완료되었습니다.', 'success')
+    return redirect(url_for('post', post_id=post.id))
