@@ -14,11 +14,11 @@ from wtforms.validators import DataRequired, Length, EqualTo, ValidationError, R
 class RegistrationForm(FlaskForm):
     # 아이디: 영문/숫자/언더스코어 4~20자
     username = StringField(
-        '아이디',
+        '교번',
         validators=[
             DataRequired(),
-            Length(min=4, max=20),
-            Regexp(r'^[A-Za-z0-9_]+$', message='아이디는 영문/숫자/언더스코어만 가능합니다.')
+            Length(min=5, max=5),
+            Regexp(r'^[0-9]{5}$', message='교번은 5자리 숫자만 입력 가능합니다.')
         ]
     )
 
@@ -75,6 +75,6 @@ class ProfileForm(FlaskForm):
     grade     = StringField('학년', validators=[Optional(), Length(max=10)])
     real_name = StringField('이름', validators=[Optional(), Length(max=50)])
     birthdate = DateField('생년월일', format='%Y-%m-%d', validators=[Optional()])
-    specialty = StringField('특징(잘하는 분야)', validators=[Optional(), Length(max=200)])
+    specialty = StringField('특징(자격증)', validators=[Optional(), Length(max=200)])
     submit    = SubmitField('저장')
     submit    = SubmitField('저장')

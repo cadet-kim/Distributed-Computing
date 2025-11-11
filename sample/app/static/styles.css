@@ -39,3 +39,65 @@ a.article-title:hover {
 .comment-section {
     margin-top: 2rem;
 }
+
+
+/* view_profile 간결 정보형 */
+section.wrap {
+  width: 380px;
+  margin: 50px auto;
+  background: #ffffff;
+  border-radius: 25px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  padding: 30px 25px;
+  text-align: center;
+}
+
+/* 메뉴 */
+nav.menu {
+  display: flex;
+  justify-content: flex-end;
+}
+.menu-btn {
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+/* 이름, 정보 */
+article.profile h2 {
+  font-weight: 700;
+  font-size: 24px;
+  color: #222;
+  margin-bottom: 8px;
+}
+.grade-company {
+  color: #555;
+  font-size: 15px;
+  margin-bottom: 3px;
+}
+.specialty {
+  font-size: 15px;
+  color: #0077b6;
+  margin-bottom: 5px;
+}
+.birthdate {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+/* 활동 요약 */
+.activity-summary {
+  background: #f0fbff;
+  border-radius: 15px;
+  padding: 12px;
+  margin-top: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+.activity-summary p {
+  font-size: 14px;
+  color: #333;
+  margin: 4px 0;
+}
+

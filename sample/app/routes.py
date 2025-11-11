@@ -146,3 +146,8 @@ def apply_post(post_id):
     db.session.commit()
     flash('신청이 완료되었습니다.', 'success')
     return redirect(url_for('post', post_id=post.id))
+    
+@app.route("/profile/<int:user_id>")
+def view_profile(user_id):
+    user = User.query.get_or_404(user_id)
+    return render_template("view_profile.html", user=user)
