@@ -9,6 +9,9 @@
     <div><strong>이름:</strong> {{ current_user.real_name or '-' }}</div>
     <div><strong>생년월일:</strong> {{ current_user.birthdate or '-' }}</div>
     <div><strong>특징:</strong> {{ current_user.specialty or '-' }}</div>
+    <hr class="my-2">
+    <div><strong>멘토 활동:</strong> <strong>{{ current_user.mentor_activity_count }}</strong> 회 </div>
+    <div><strong>멘티 활동:</strong> <strong>{{ current_user.mentee_activity_count }}</strong> 회 </div>
   </div>
   <hr>
 

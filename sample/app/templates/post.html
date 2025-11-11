@@ -5,6 +5,9 @@
       <div class="article-metadata">
         <a class="mr-2" href="#">{{ post.author.username }}</a>
         <small class="text-muted">{{ post.date_posted.strftime('%Y-%m-%d %H:%M') }}</small>
+        <div class="small text-muted mt-1">
+          (멘토 활동: <strong>{{ post.author.mentor_activity_count }}</strong>회 | 멘티 활동: <strong>{{ post.author.mentee_activity_count }}</strong>회)
+        </div>
         {% if post.author == current_user %}
           <div>
             <form action="{{ url_for('delete_post', post_id=post.id) }}" method="POST">
@@ -19,7 +22,9 @@
             <span class="ms-2 text-muted">
               ({{ post.applicant.real_name or post.applicant.username }} 님이 신청)
             </span>
-          
+          <div class="small text-muted mt-1">
+              (멘토 활동: <strong>{{ post.applicant.mentor_activity_count }}</strong>회 | 멘티 활동: <strong>{{ post.applicant.mentee_activity_count }}</strong>회)
+            </div>
           {% elif current_user.is_authenticated and post.author != current_user %}
             {# 2. 신청자가 없고, 로그인했고, 작성자가 아닌 경우 -> '신청하기' 버튼 #}
             <form action="{{ url_for('apply_post', post_id=post.id) }}" method="POST">

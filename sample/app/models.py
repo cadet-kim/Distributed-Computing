@@ -15,9 +15,22 @@ class User(db.Model, UserMixin):
     real_name = db.Column(db.String(50))      
     birthdate = db.Column(db.Date)            
     specialty = db.Column(db.String(200))     
-    posts = db.relationship('Post', foreign_keys='Post.user_id', backref='author', lazy=True)
-    comments = db.relationship('Comment', backref='author', lazy=True)
-    
+    posts = db.relationship('Post', foreign_keys='Post.user_id', backref='author', lazy='dynamic')
+    posts_applied_to = db.relationship('Post', foreign_keys='Post.applicant_id', backref='applicant', lazy='dynamic')
+    comments = db.relationship('Comment', backref='applicant', lazy='dynamic')
+
+    @property
+    def mentor_activity_count(self):
+        """멘토 활동 횟수 계산"""
+        # 멘토 활동: 내가 쓴 글 (self.posts) 중에서,
+        # applicant_id가 채워진(None이 아닌) 글의 개수
+        return self.posts.filter(Post.applicant_id != None).count()
+
+    @property
+    def mentee_activity_count(self):
+        """멘티 활동 횟수 계산"""
+        # 멘티 활동: 내가 신청한(posts_applied_to) 글의 총 개수
+        return self.posts_applied_to.count()
 
     def __repr__(self):
         return f"User('{self.username}')"
@@ -30,7 +43,6 @@ class Post(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     comments = db.relationship('Comment', backref='post', lazy=True, cascade="all, delete-orphan")
     applicant_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
-    applicant = db.relationship('User', foreign_keys=[applicant_id])
 
     def __repr__(self):
         return f"Post('{self.title}', '{self.date_posted}')"
