@@ -1,5 +1,5 @@
 from flask import render_template, url_for, flash, redirect, request, abort
-from app import app, db, bcrypt
+from app import app, db, bcrypt, google
 from app.forms import RegistrationForm, LoginForm, PostForm, ProfileForm  # ← ProfileForm 추가
 from app.models import User, Post
 from flask_login import login_user, current_user, logout_user, login_required
@@ -151,3 +151,34 @@ def apply_post(post_id):
 def view_profile(user_id):
     user = User.query.get_or_404(user_id)
     return render_template("view_profile.html", user=user)
+
+@app.route("/login/google")
+def google_login():
+    redirect_uri = url_for("google_callback", _external=True)
+    return google.authorize_redirect(redirect_uri)
+
+@app.route("/login/google/callback")
+def google_callback():
+    token = google.authorize_access_token()
+    user_info = google.parse_id_token(token)
+    email = user_info.get("email")
+    name = user_info.get("name")
+
+    # 1) 우리 DB에서 해당 이메일로 유저 검색
+    user = User.query.filter_by(username=email).first()
+
+    if not user:
+        # 2) 없다면 자동 회원가입
+        user = User(
+            username=email,
+            real_name=name,
+            password="google_oauth_no_password"
+        )
+        db.session.add(user)
+        db.session.commit()
+
+    # 3) Flask-Login으로 로그인
+    login_user(user)
+
+    flash(f"{name}님, 구글 계정으로 로그인되었습니다.", "success")
+    return redirect(url_for("home"))
