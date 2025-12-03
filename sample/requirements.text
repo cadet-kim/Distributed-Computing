@@ -4,3 +4,5 @@ Flask-Login
 Flask-Bcrypt
 Flask-WTF
 Flask-MIGRATE
+django-allauth
+Authlib
