@@ -1,0 +1,111 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+/*#2 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+/*#3 */
+button {
+  border: none;
+  outline: none;
+  background-color: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+/* body는 삭제함 (전체 레이아웃 깨짐 방지)
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: #008aff;
+}
+*/
+
+.wrapper {
+  width: 100%;       /* 사이드바에 들어갈 작은 캘린더용 */
+  background: #fff;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0px 2px 6px rgb(0 0 0 / 15%);
+}
+
+/*#6*/
+.wrapper .nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.wrapper .nav .current-date {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.wrapper .nav button {
+  width: 30px;
+  height: 30px;
+  font-size: 22px;
+  color: #878787;
+}
+
+.calendar ul {
+  display: flex;
+  list-style: none;
+  flex-wrap: wrap;
+  text-align: center;
+}
+
+.calendar .weeks li {
+  font-weight: 500;
+}
+
+.calendar .days {
+  margin-bottom: 10px;
+}
+
+.calendar ul li {
+  width: calc(100% / 7);
+  position: relative;
+}
+
+.calendar .days li {
+  z-index: 1;
+  margin-top: 20px;
+  cursor: pointer;
+}
+
+/*#11*/
+.days li.inactive {
+  color: #aaa;
+}
+
+.days li.active {
+  color: #fff;
+}
+
+.calendar .days li::before {
+  position: absolute;
+  content: '';
+  height: 35px;
+  width: 35px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  z-index: -1;
+}
+
+.days li:hover::before {
+  background: #f2f2f2;
+}
+
+.days li.active::before {
+  background: #008aff;
+}
