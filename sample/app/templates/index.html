@@ -3,24 +3,21 @@
 
 <div class="row">
 
-<<<<<<< HEAD
-  <!-- 왼쪽: 달력으로 이동하는 카드 -->
+  <!-- 왼쪽: 작은 달력 (클릭 시 /calendar로 이동) -->
   <div class="col-md-3 mb-4">
     <a href="/calendar" class="text-decoration-none">
       <div class="card shadow-sm" role="button">
-        <div class="card-header bg-primary text-white">
+        <div class="card-header bg-primary text-white text-center">
           <strong>📅 달력</strong>
         </div>
-        <div class="card-body text-center">
-          <p class="text-muted mb-0">클릭하여 달력 페이지 보기</p>
+        <div class="card-body p-0">
+          <!-- 작은 달력 include -->
+          <div class="p-2">
+            {% include "smallcalendar.html" %}
+          </div>
         </div>
       </div>
     </a>
-=======
-  <!-- 왼쪽: 작은 달력 -->
-  <div class="col-md-3 mb-4">
-    {% include "smallcalendar.html" %}
->>>>>>> frontend
   </div>
 
   <!-- 오른쪽: 게시판 전체 -->
@@ -50,28 +47,17 @@
       <button type="submit" class="btn btn-outline-primary ms-2">검색</button>
     </form>
 
-<<<<<<< HEAD
-=======
-    <!-- 검색 결과 안내 -->
->>>>>>> frontend
     {% if query %}
       <p class="text-muted">"{{ query }}" 검색 결과입니다.</p>
     {% endif %}
 
-<<<<<<< HEAD
-=======
-    <!-- 게시글 목록 -->
->>>>>>> frontend
     {% if posts %}
       <div class="vstack gap-3">
         {% for post in posts %}
           <article class="card shadow-sm border-0 {% if post.applicant_id %}applied-card{% endif %}">
             <div class="card-body d-flex justify-content-between align-items-center">
 
-<<<<<<< HEAD
-=======
               <!-- 왼쪽: 글 제목/작성자/날짜 -->
->>>>>>> frontend
               <div>
                 <h2 class="h5 mb-1">
                   <a class="text-decoration-none text-dark"
@@ -80,12 +66,7 @@
                   </a>
                 </h2>
                 <div class="small text-muted">
-<<<<<<< HEAD
                   작성자: {{ post.author.real_name or post.author.username }} ·
-=======
-                  작성자:
-                  {{ post.author.real_name or post.author.username }} ·
->>>>>>> frontend
                   {{ post.date_posted.strftime('%Y-%m-%d') }}
                 </div>
 
