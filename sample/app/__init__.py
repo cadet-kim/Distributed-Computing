@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 app.config['SECRET_KEY'] = '5791628bb0b13ce0c676dfde280ba245'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
-
+app.config['PREFERRED_URL_SCHEME'] = 'https'
 app.config['GOOGLE_CLIENT_ID'] = '861514102522-c8vppikutcunjkj8qshqp2f5c76n926s.apps.googleusercontent.com'
 app.config['GOOGLE_CLIENT_SECRET'] = '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'
 app.config['GOOGLE_DISCOVERY_URL'] = 'https://accounts.google.com/.well-known/openid-configuration'
