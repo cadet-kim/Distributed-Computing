@@ -12,11 +12,11 @@ UPLOAD_FOLDER = os.path.join(os.getcwd(), 'app', 'static', 'profile_pics')
 
 
 
-@app.route("/")
 @app.route("/home")
+@login_required
 def home():
-    posts = Post.query.order_by(Post.date_posted.desc()).all()
-    return render_template('index.html', posts=posts)
+    posts = Post.query.all()
+    return render_template("index.html", posts=posts)
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
@@ -182,3 +182,8 @@ def google_callback():
 
     flash(f"{name}님, 구글 계정으로 로그인되었습니다.", "success")
     return redirect(url_for("home"))
+    
+@app.route("/")
+def index():
+    return render_template("landing.html")
+
