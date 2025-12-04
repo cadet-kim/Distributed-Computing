@@ -1,13 +1,30 @@
-{% extends "layout.html" %}
-{% block content %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landing Page</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='landigstyle.css') }}">
+</head>
+<body>
+    <div class="overlay"></div>
 
-<div class="text-center mt-5">
-  <h1 class="display-4 fw-bold">환영합니다!</h1>
-  <p class="lead mt-3">이 페이지는 앞으로 꾸밀 랜딩 페이지입니다.</p>
+    <div class="content">
+        <h1>WELCOME TO OUR SERVICE</h1>
+        <p>간단하고 감각적인 랜딩 페이지 템플릿</p>
 
-  <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg mt-4">
-    로그인하러 가기
-  </a>
-</div>
+        <div class="btn-group">
+            <a href="/login" class="btn login">로그인</a>
+            <a href="/register" class="btn register">회원가입</a>
+        </div>
+    </div>
 
-{% endblock %}
+</body>
+</html>
+
+
+
+
+
+
+	
