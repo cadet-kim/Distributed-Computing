@@ -1,111 +1,89 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+/* sidebar용 작은 달력 */
 
-/*#2 */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Poppins', sans-serif;
-}
+/* body 스타일 제거 (중복 문제 해결) */
 
-/*#3 */
-button {
-  border: none;
-  outline: none;
-  background-color: transparent;
-  padding: 0;
-  cursor: pointer;
-}
-
-
-body {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  background: #008aff;
-}
-
-
+/* wrapper: 작은 카드 형태 */
 .wrapper {
-  width: 100%;       /* 사이드바에 들어갈 작은 캘린더용 */
+  width: 100%;
   background: #fff;
   border-radius: 10px;
   padding: 15px;
   box-shadow: 0px 2px 6px rgb(0 0 0 / 15%);
 }
 
-/*#6*/
-.wrapper .nav {
+/* nav 영역 */
+.nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
-.wrapper .nav .current-date {
+.nav button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
   font-size: 18px;
+  color: #555;
+}
+
+.current-date {
+  font-size: 16px;
   font-weight: 600;
 }
 
-.wrapper .nav button {
-  width: 30px;
-  height: 30px;
-  font-size: 22px;
-  color: #878787;
-}
-
+/* calendar layout */
 .calendar ul {
   display: flex;
   list-style: none;
+  padding: 0;
+  margin: 0;
   flex-wrap: wrap;
   text-align: center;
 }
 
 .calendar .weeks li {
-  font-weight: 500;
-}
-
-.calendar .days {
-  margin-bottom: 10px;
-}
-
-.calendar ul li {
+  font-weight: 600;
+  color: #555;
   width: calc(100% / 7);
-  position: relative;
 }
 
 .calendar .days li {
-  z-index: 1;
-  margin-top: 20px;
+  width: calc(100% / 7);
+  padding: 6px 0;
   cursor: pointer;
+  position: relative;
+  font-size: 14px;
 }
 
-/*#11*/
+/* 지난달/다음달 날짜 */
 .days li.inactive {
-  color: #aaa;
+  color: #bbb;
 }
 
+/* 오늘 날짜 */
 .days li.active {
   color: #fff;
-}
-
-.calendar .days li::before {
-  position: absolute;
-  content: '';
-  height: 35px;
-  width: 35px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  z-index: -1;
-}
-
-.days li:hover::before {
-  background: #f2f2f2;
 }
 
 .days li.active::before {
   background: #008aff;
 }
+
+/* 원형 하이라이트 */
+.days li::before {
+  content: "";
+  position: absolute;
+  height: 28px;
+  width: 28px;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: -1;
+}
+
+.days li:hover::before {
+  background: #eaeaea;
+}
+
