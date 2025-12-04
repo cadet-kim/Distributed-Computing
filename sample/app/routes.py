@@ -1,7 +1,7 @@
 from flask import render_template, url_for, flash, redirect, request, abort
 from app import app, db, bcrypt, google
-from app.forms import RegistrationForm, LoginForm, PostForm, ProfileForm  # ← ProfileForm 추가
-from app.models import User, Post
+from app.forms import RegistrationForm, LoginForm, PostForm, ProfileForm, ChatForm  # ← ProfileForm 추가
+from app.models import User, Post, Message
 from flask_login import login_user, current_user, logout_user, login_required
 from werkzeug.utils import secure_filename
 from config import Config
@@ -10,7 +10,44 @@ import os
 
 UPLOAD_FOLDER = os.path.join(os.getcwd(), 'app', 'static', 'profile_pics')
 
+@app.route("/chat/<int:post_id>", methods=['GET', 'POST'])
+@login_required
+def chat(post_id):
+    post = Post.query.get_or_404(post_id)
 
+    # 1) 이 글이 신청 완료 상태인지 확인
+    if not post.applicant_id:
+        flash("아직 신청이 완료되지 않은 게시글입니다.", "warning")
+        return redirect(url_for('post', post_id=post.id))
+
+    # 2) 현재 사용자가 채팅 참여자인지 확인 (작성자 or 신청자)
+    if current_user.id not in [post.user_id, post.applicant_id]:
+        flash("이 채팅에 참여할 권한이 없습니다.", "danger")
+        return redirect(url_for('home'))
+
+    # 대화 상대 결정
+    if current_user.id == post.user_id:
+        other_user = User.query.get(post.applicant_id)
+    else:
+        other_user = User.query.get(post.user_id)
+
+    form = ChatForm()
+
+    if form.validate_on_submit():
+        msg = Message(
+            post_id=post.id,
+            sender_id=current_user.id,
+            receiver_id=other_user.id,
+            content=form.content.data
+        )
+        db.session.add(msg)
+        db.session.commit()
+        return redirect(url_for('chat', post_id=post.id))
+
+    # 이 게시글에 대한 기존 메시지 가져오기 (오래된 순으로)
+    messages = Message.query.filter_by(post_id=post.id).order_by(Message.timestamp.asc()).all()
+
+    return render_template("chat.html", post=post, other_user=other_user, messages=messages, form=form)
 
 @app.route("/home")
 @login_required

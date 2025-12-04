@@ -22,6 +22,13 @@
             <span class="ms-2 text-muted">
               ({{ post.applicant.real_name or post.applicant.username }} 님이 신청)
             </span>
+             <div class="mt-2">
+              {% if current_user.is_authenticated and current_user.id in [post.author.id, post.applicant.id] %}
+              <a href="{{ url_for('chat', post_id=post.id) }}" class="btn btn-primary btn-sm">
+                채팅하기
+              </a>
+              {% endif %}
+            </div>
           <div class="small text-muted mt-1">
               (멘토 활동: <strong>{{ post.applicant.mentor_activity_count }}</strong>회 | 멘티 활동: <strong>{{ post.applicant.mentee_activity_count }}</strong>회)
             </div>

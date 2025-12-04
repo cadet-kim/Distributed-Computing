@@ -10,6 +10,9 @@ from app.models import User
 from wtforms.fields import DateField
 from wtforms.validators import DataRequired, Length, EqualTo, ValidationError, Regexp, Optional
 
+class ChatForm(FlaskForm):
+    content = TextAreaField('메시지', validators=[DataRequired(), Length(min=1, max=1000)])
+    submit = SubmitField('전송')
 
 class RegistrationForm(FlaskForm):
     # 아이디: 영문/숫자/언더스코어 4~20자
