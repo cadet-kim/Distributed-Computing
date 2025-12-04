@@ -1,62 +1,59 @@
-/* sidebar용 작은 달력 */
-
-/* body 스타일 제거 (중복 문제 해결) */
-
-/* wrapper: 작은 카드 형태 */
+/* 캘린더 컨테이너 */
 .wrapper {
   width: 100%;
   background: #fff;
   border-radius: 10px;
   padding: 15px;
-  box-shadow: 0px 2px 6px rgb(0 0 0 / 15%);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
 
-/* nav 영역 */
+/* 내비게이션 */
 .nav {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  margin-bottom: 10px;
+  align-items: center;
+  margin-bottom: 12px;
 }
 
-.nav button {
+.nav-btn {
   border: none;
   background: transparent;
-  cursor: pointer;
   font-size: 18px;
-  color: #555;
+  cursor: pointer;
+  padding: 5px;
 }
 
-.current-date {
-  font-size: 16px;
-  font-weight: 600;
+/* Bootstrap override (중요!) */
+.calendar ul,
+.calendar li {
+  list-style: none !important;
+  margin: 0;
+  padding: 0;
 }
 
-/* calendar layout */
+/* 주/일 배치 */
 .calendar ul {
   display: flex;
-  list-style: none;
-  padding: 0;
-  margin: 0;
   flex-wrap: wrap;
   text-align: center;
 }
 
-.calendar .weeks li {
-  font-weight: 600;
-  color: #555;
+.weeks li {
   width: calc(100% / 7);
+  font-weight: 600;
+  padding-bottom: 5px;
+  color: #555;
 }
 
-.calendar .days li {
+.days li {
   width: calc(100% / 7);
-  padding: 6px 0;
+  margin-top: 10px;
   cursor: pointer;
   position: relative;
-  font-size: 14px;
+  padding: 5px 0;
 }
 
-/* 지난달/다음달 날짜 */
+/* 이전 달/다음 달 날짜 */
 .days li.inactive {
   color: #bbb;
 }
@@ -70,7 +67,7 @@
   background: #008aff;
 }
 
-/* 원형 하이라이트 */
+/* hover highlight */
 .days li::before {
   content: "";
   position: absolute;
@@ -86,4 +83,3 @@
 .days li:hover::before {
   background: #eaeaea;
 }
-
