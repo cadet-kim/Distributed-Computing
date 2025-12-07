@@ -1,8 +1,7 @@
 # app/forms.py
 
-
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, TextAreaField, ColorField
+from wtforms import StringField, PasswordField, SubmitField, TextAreaField, ColorField, SelectField
 from wtforms.validators import (
     DataRequired, Length, EqualTo, ValidationError,
     Regexp, Optional   # ✅ 추가: Regexp, Optional
@@ -86,6 +85,16 @@ class ProfileForm(FlaskForm):
 class ScheduleForm(FlaskForm):
     date = DateField('날짜', format='%Y-%m-%d', validators=[DataRequired()])
     title = StringField('일정 제목', validators=[DataRequired(), Length(max=100)])
+    memo = TextAreaField('메모', validators=[Optional()])
+    
+    color = SelectField(
+        '색상',
+        choices=[
+            ("#A0A0A0", "회색"),
+            ("#4AA8FF", "파랑"),
+            ("#FF5C5C", "빨강")
+        ],
+        validators=[DataRequired()]
+    )
+
     submit = SubmitField('일정 추가')
-    memo = TextAreaField("메모")
-    color = ColorField("색상")

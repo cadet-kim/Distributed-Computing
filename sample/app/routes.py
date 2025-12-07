@@ -35,7 +35,6 @@ def home():
 
     posts = base_query.all()
 
-    # 🔥 전체 일정 불러와 달력에 색상 표시
     schedules = Schedule.query.filter_by(user_id=current_user.id).all()
 
     schedules_json = [
@@ -57,7 +56,6 @@ def home():
     )
 
 
-
 # =====================================================
 # 회원가입
 # =====================================================
@@ -70,8 +68,8 @@ def register():
 
     if form.validate_on_submit():
         if form.invite_code.data != '54321':
-           flash("인증 코드가 올바르지 않습니다.", "danger")
-           return render_template("register.html", form=form)
+            flash("인증 코드가 올바르지 않습니다.", "danger")
+            return render_template("register.html", form=form)
 
         hashed_pw = bcrypt.generate_password_hash(form.password.data).decode("utf-8")
         user = User(username=form.username.data, password=hashed_pw)
@@ -82,7 +80,6 @@ def register():
         return redirect(url_for('login'))
 
     return render_template("register.html", form=form)
-
 
 
 # =====================================================
@@ -108,12 +105,10 @@ def login():
     return render_template("login.html", form=form)
 
 
-
 @app.route("/logout")
 def logout():
     logout_user()
     return redirect(url_for("index"))
-
 
 
 # =====================================================
@@ -153,6 +148,28 @@ def delete_post(post_id):
     return redirect(url_for('home'))
 
 
+# =====================================================
+# 게시글 신청 기능 (merge 중 사라졌던 부분 복구)
+# =====================================================
+@app.route("/post/<int:post_id>/apply", methods=['POST'])
+@login_required
+def apply_post(post_id):
+    post = Post.query.get_or_404(post_id)
+
+    if post.author == current_user:
+        flash("자기 글에는 신청할 수 없습니다.", "danger")
+        return redirect(url_for('post', post_id=post.id))
+
+    if post.applicant_id:
+        flash("이미 신청 완료된 글입니다.", "warning")
+        return redirect(url_for('post', post_id=post.id))
+
+    post.applicant_id = current_user.id
+    db.session.commit()
+
+    flash("신청 완료!", "success")
+    return redirect(url_for("chat", post_id=post.id))
+
 
 # =====================================================
 # 채팅
@@ -189,7 +206,6 @@ def chat(post_id):
     return render_template("chat.html", post=p, messages=messages, other_user=other, form=form)
 
 
-
 # =====================================================
 # 프로필
 # =====================================================
@@ -223,6 +239,15 @@ def profile():
     return render_template("profile.html", user=current_user)
 
 
+# =====================================================
+# 🔥 빠져있던 view_profile 복구 (BuildError 원인 해결)
+# =====================================================
+@app.route("/profile/<int:user_id>")
+@login_required
+def view_profile(user_id):
+    user = User.query.get_or_404(user_id)
+    return render_template("view_profile.html", user=user)
+
 
 # =====================================================
 # 일정 추가
@@ -253,7 +278,6 @@ def new_schedule():
     return render_template("new_schedule.html", form=form)
 
 
-
 # =====================================================
 # 일정 삭제
 # =====================================================
@@ -275,9 +299,8 @@ def delete_schedule(schedule_id):
     return redirect(url_for("schedule_day", date_str=date_str))
 
 
-
 # =====================================================
-# 일정 날짜별 보기 (👉 색 표시를 위해 전체 일정 다시 전달)
+# 일정 날짜별 보기
 # =====================================================
 @app.route("/schedule/<string:date_str>")
 @login_required
@@ -293,7 +316,6 @@ def schedule_day(date_str):
         date=date_obj
     ).all()
 
-    # 🔥 달력 색상 표시용 전체 일정 전달
     all_schedules = Schedule.query.filter_by(user_id=current_user.id).all()
 
     schedules_json = [
@@ -315,30 +337,3 @@ def schedule_day(date_str):
     )
 
 
-# =====================================================
-# 구글 로그인
-# =====================================================
-@app.route("/login/google")
-def google_login():
-    redirect_uri = url_for("google_callback", _external=True)
-    return google.authorize_redirect(redirect_uri)
-
-
-@app.route("/login/google/callback")
-def google_callback():
-    token = google.authorize_access_token()
-    user_info = google.parse_id_token(token)
-
-    email = user_info.get("email")
-    name = user_info.get("name")
-
-    user = User.query.filter_by(username=email).first()
-
-    if not user:
-        user = User(username=email, real_name=name, password="google_oauth_no_password")
-        db.session.add(user)
-        db.session.commit()
-
-    login_user(user)
-    flash(f"{name}님 구글 로그인 성공!", "success")
-    return redirect(url_for("home"))
