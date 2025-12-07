@@ -1,52 +1,91 @@
 {% extends "layout.html" %}
 {% block content %}
-<div class="content-section">
-  <h3>
-    "{{ post.title }}" 글 채팅  
-  </h3>
+<div class="content-section" style="background-color:white; border-radius:15px; padding:20px;">
+
+  <h3>"{{ post.title }}" </h3>
   <p class="text-muted mb-3">
-    나: {{ current_user.real_name or current_user.username }}<br>
-    상대: {{ other_user.real_name or other_user.username }}
+    상대:
+    {% if other_user.real_name %}
+      {{ other_user.real_name }} / {{ other_user.username }}
+    {% else %}
+      No name registered / {{ other_user.username }}
+    {% endif %}
   </p>
   <hr>
 
-  <!-- 메시지 리스트 -->
-  <div style="max-height: 400px; overflow-y: auto; margin-bottom: 1rem;">
+  <!-- 메시지 리스트 (Instagram DM 스타일) -->
+  <div id="chat-box" style="
+      height: 50vh;
+      overflow-y: auto;
+      margin-bottom: 1rem;
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 15px;
+      border: 1px solid #e5e5e5;
+  ">
+
     {% for msg in messages %}
-      <div class="mb-2">
+      <div class="mb-3">
+
         {% if msg.sender_id == current_user.id %}
-          <!-- 내가 보낸 메시지 (오른쪽 정렬) -->
-          <div class="d-flex justify-content-end">
-            <div class="p-2 rounded" style="background-color:#0d6efd; color:white; max-width:70%;">
-              <div class="small text-end">{{ msg.timestamp.strftime('%Y-%m-%d %H:%M') }}</div>
-              <div>{{ msg.content|e }}</div>
+        <!-- 내가 보낸 메시지 (오른쪽) -->
+        <div class="d-flex justify-content-end">
+          <div style="
+              background-color:#0095f6;
+              color:white;
+              padding:10px 14px;
+              border-radius:18px;
+              max-width:65%;
+              word-wrap:break-word;
+          ">
+            <div class="small text-end" style="color:#dceaff; font-size:11px;">
+              {{ msg.timestamp.strftime('%Y-%m-%d %H:%M') }}
             </div>
+            <div>{{ msg.content|e }}</div>
           </div>
+        </div>
+
         {% else %}
-          <!-- 상대가 보낸 메시지 (왼쪽 정렬) -->
-          <div class="d-flex justify-content-start">
-            <div class="p-2 rounded" style="background-color:#e9ecef; max-width:70%;">
-              <div class="small text-muted">{{ msg.timestamp.strftime('%Y-%m-%d %H:%M') }}</div>
-              <div>{{ msg.content|e }}</div>
+        <!-- 상대가 보낸 메시지 (왼쪽) -->
+        <div class="d-flex justify-content-start">
+          <div style="
+              background-color:#efefef;
+              padding:10px 14px;
+              border-radius:18px;
+              max-width:65%;
+              word-wrap:break-word;
+          ">
+            <div class="small" style="color:#999; font-size:11px;">
+              {{ msg.timestamp.strftime('%Y-%m-%d %H:%M') }}
             </div>
+            <div>{{ msg.content|e }}</div>
           </div>
+        </div>
         {% endif %}
+
       </div>
     {% else %}
       <p class="text-muted">아직 주고받은 메시지가 없습니다. 첫 메시지를 보내보세요!</p>
     {% endfor %}
   </div>
 
-  <!-- 입력 폼 -->
+  <!-- 입력 폼 (인스타 DM 스타일) -->
   <form method="POST" action="">
     {{ form.hidden_tag() }}
+    
     <div class="mb-2">
-      {{ form.content(class="form-control", rows=2, placeholder="메시지를 입력하세요...") }}
+      {{ form.content(
+        class="form-control",
+        style="height:60px; border-radius:20px; background-color:#fafafa; border:1px solid #ddd;",
+        placeholder="메시지를 입력하세요!"
+      ) }}
     </div>
+
     <div class="text-end">
       {{ form.submit(class="btn btn-primary") }}
     </div>
   </form>
+
 </div>
 {% endblock content %}
 
