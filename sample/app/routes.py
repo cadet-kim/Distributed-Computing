@@ -7,6 +7,7 @@ from werkzeug.utils import secure_filename
 from config import Config
 from datetime import datetime
 import os
+from sqlalchemy import and_
 
 UPLOAD_FOLDER = os.path.join(os.getcwd(), 'app', 'static', 'profile_pics')
 
@@ -52,8 +53,20 @@ def chat(post_id):
 @app.route("/home")
 @login_required
 def home():
-    posts = Post.query.all()
-    return render_template("index.html", posts=posts)
+
+    query = request.args.get("q", "").strip()
+
+
+    base_query = Post.query.order_by(Post.date_posted.desc())
+
+    if query:
+        terms = query.split()
+        filters = [Post.title.ilike(f"%{term}%") for term in terms]
+        base_query = base_query.filter(and_(*filters))
+
+    posts = base_query.all()
+
+    return render_template("index.html", posts=posts, query=query)
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
@@ -223,4 +236,25 @@ def google_callback():
 @app.route("/")
 def index():
     return render_template("landing.html")
+
+from sqlalchemy import and_
+
+@app.route("/search")
+def search():
+    q = request.args.get("q", "").strip()
+
+    if not q:
+        flash("검색어를 입력해주세요.", "warning")
+        return redirect(url_for("home"))
+
+    terms = q.split()  # 공백 기준으로 나누기
+
+    filters = [Post.title.ilike(f"%{term}%") for term in terms]
+    query = Post.query
+    if filters:
+        query = query.filter(and_(*filters))
+
+    posts = query.order_by(Post.date_posted.desc()).all()
+
+    return render_template("search_results.html", q=q, posts=posts)
 

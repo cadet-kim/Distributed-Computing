@@ -34,7 +34,7 @@
     <div class="container d-flex align-items-center">
       <a class="navbar-brand" href="{{ url_for('home') }}">육군사관학교 게시판</a>
 
-      <div class="ms-auto d-flex align-items-center gap-2">
+      <div class="ms-auto d-flex align-items-center gap-3">
         <a class="nav-link text-light" href="{{ url_for('home') }}">Home</a>
 
         {% if current_user.is_authenticated %}
@@ -66,4 +66,3 @@
 
 </body>
 </html>
-

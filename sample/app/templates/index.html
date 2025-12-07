@@ -35,14 +35,13 @@
     </div>
 
     <!-- 검색창 -->
-    <form action="" method="GET" class="d-flex mb-4">
+    <form action="{{ url_for('home') }}" method="GET" class="d-flex mb-4">
       <input
         type="text"
         name="q"
         class="form-control"
         placeholder="검색어를 입력하세요"
-        value="{{ query if query }}"
-        required
+        value="{{ query or '' }}"
       >
       <button type="submit" class="btn btn-outline-primary ms-2">검색</button>
     </form>
