@@ -5,6 +5,8 @@ from flask_login import LoginManager
 from flask_migrate import Migrate
 from authlib.integrations.flask_client import OAuth
 
+import os
+
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = '5791628bb0b13ce0c676dfde280ba245'
@@ -37,3 +39,16 @@ from app import routes
 from flask_migrate import Migrate
 migrate = Migrate(app, db)
 from app import models
+
+
+def create_database_if_not_exists():
+    """site.db 파일이 없으면 자동 생성"""
+    db_path = os.path.join(app.root_path, "site.db")
+
+    if not os.path.exists(db_path):
+        print("⚠️  site.db가 없습니다. 새로 생성합니다...")
+        with app.app_context():
+            db.create_all()
+        print("✅ DB 생성 완료!")
+
+create_database_if_not_exists()

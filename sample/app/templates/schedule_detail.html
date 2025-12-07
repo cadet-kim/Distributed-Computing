@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h2>{{ schedule.title }}</h2>
+
+<p><strong>날짜:</strong> {{ schedule.date }}</p>
+<p><strong>내용:</strong> {{ schedule.content }}</p>
+
+<form action="{{ url_for('delete_schedule', schedule_id=schedule.id) }}"
+      method="POST"
+      onsubmit="return confirm('정말 삭제할까요?');">
+    <button type="submit" class="btn btn-danger">삭제</button>
+</form>
+
+{% endblock %}

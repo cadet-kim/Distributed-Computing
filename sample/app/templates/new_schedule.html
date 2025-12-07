@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="container mt-4">
+    <h2>새 일정 추가</h2>
+    <hr>
+
+    <form method="POST">
+        {{ form.hidden_tag() }}
+
+        <div class="mb-3">
+            <label class="form-label">일정 제목</label>
+            {{ form.title(class="form-control", placeholder="예: 멘토링 일정") }}
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">날짜 선택</label>
+            {{ form.date(class="form-control") }}
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">색상 선택</label>
+            {{ form.color(class="form-control form-control-color") }}
+        </div>
+
+        <button type="submit" class="btn btn-primary">등록</button>
+        <a href="{{ url_for('home') }}" class="btn btn-secondary">취소</a>
+    </form>
+</div>
+
+{% endblock %}

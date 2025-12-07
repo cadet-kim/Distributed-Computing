@@ -72,18 +72,24 @@ class Comment(db.Model):
     
 class Schedule(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    # 어떤 게시글(멘토–멘티 매칭) 일정인지
-    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
 
-    # 하루 단위 일정이라고 가정
+    # 일정의 주인 (로그인한 사용자)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+    # 일정 날짜
     date = db.Column(db.Date, nullable=False)
+
+    # 일정 제목
     title = db.Column(db.String(100), nullable=False)
 
-    # post 를 통해 mentor/mentee 를 알 수 있음
-    post = db.relationship('Post', backref=db.backref('schedules', lazy='dynamic'))
+    # 달력에 표시할 색깔 (선택)
+    color = db.Column(db.String(20), default="#3b82f6")  # 기본 파란색
 
     def __repr__(self):
         return f"<Schedule {self.title} {self.date}>"
+
+
+
 
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
