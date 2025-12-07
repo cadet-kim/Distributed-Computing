@@ -19,11 +19,17 @@
           {% include "smallcalendar.html" %}
         </div>
 
-        <!-- 🔹 일정 추가 버튼 (하나만 존재) -->
+        <!-- 🔥🔥 반드시 추가해야 하는 부분: 일정 JSON 데이터 전달 -->
+        <script id="schedule-data" type="application/json">
+          {{ schedules|tojson }}
+        </script>
+        <!-- 🔥🔥 이 태그가 없으면 색깔 절대 안 보임 -->
+
+        <!-- 🔹 일정 추가 버튼 -->
         <div class="text-center p-2">
-          <button id="add-schedule-btn" class="btn btn-sm btn-primary" disabled>
+          <a href="{{ url_for('new_schedule') }}" class="btn btn-sm btn-primary">
             📌 일정 추가
-          </button>
+          </a>
         </div>
 
         <!-- 🔹 선택한 날짜의 일정 표시 -->
@@ -113,4 +119,6 @@
 </div> <!-- end row -->
 
 {% endblock content %}
+
+
 

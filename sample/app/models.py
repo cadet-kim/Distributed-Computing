@@ -72,21 +72,16 @@ class Comment(db.Model):
     
 class Schedule(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-
-    # 일정의 주인 (로그인한 사용자)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
-    # 일정 날짜
     date = db.Column(db.Date, nullable=False)
-
-    # 일정 제목
     title = db.Column(db.String(100), nullable=False)
 
-    # 달력에 표시할 색깔 (선택)
-    color = db.Column(db.String(20), default="#3b82f6")  # 기본 파란색
+    memo = db.Column(db.Text, nullable=True)   # 🆕 메모
+    color = db.Column(db.String(20), nullable=True, default="#3B82F6")  # 🆕 색깔 (기본 파랑)
 
-    def __repr__(self):
-        return f"<Schedule {self.title} {self.date}>"
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
 
 
 

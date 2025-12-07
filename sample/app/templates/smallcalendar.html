@@ -1,3 +1,7 @@
+<script>
+    const scheduleData = {{ schedule_data if schedule_data is defined else schedules | tojson }};
+</script>
+
 <div class="wrapper">
 
     <div class="nav">
@@ -22,7 +26,12 @@
 
 </div>
 
-<!-- 반드시 있어야 함 -->
+<script>
+    // 🔥 서버에서 전달된 일정 데이터 (중요!)
+    const scheduleData = {{ schedules|tojson }};
+</script>
+
+<!-- JS 파일 -->
 <script src="{{ url_for('static', filename='js/smallcalendar.js') }}"></script>
 
 
