@@ -337,3 +337,38 @@ def schedule_day(date_str):
     )
 
 
+# =====================================================
+# Google Login
+# =====================================================
+@app.route("/google_login")
+def google_login():
+    redirect_uri = url_for("google_callback", _external=True)
+    return google.authorize_redirect(redirect_uri)
+
+
+@app.route("/google_callback")
+def google_callback():
+    token = google.authorize_access_token()
+
+    if not token:
+        flash("Google 로그인 실패!", "danger")
+        return redirect(url_for("login"))
+
+    user_info = google.get("userinfo").json()
+    email = user_info.get("email")
+
+    if not email:
+        flash("Google 계정 정보를 가져올 수 없습니다.", "danger")
+        return redirect(url_for("login"))
+
+    user = User.query.filter_by(username=email).first()
+
+    if not user:
+        user = User(username=email, password="google_oauth")  # 임시 패스워드
+        db.session.add(user)
+        db.session.commit()
+
+    login_user(user)
+    flash("Google 로그인 성공!", "success")
+    return redirect(url_for("home"))
+
