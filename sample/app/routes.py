@@ -313,3 +313,32 @@ def schedule_day(date_str):
         date=date_str,
         schedule_data=schedules_json
     )
+
+
+# =====================================================
+# 구글 로그인
+# =====================================================
+@app.route("/login/google")
+def google_login():
+    redirect_uri = url_for("google_callback", _external=True)
+    return google.authorize_redirect(redirect_uri)
+
+
+@app.route("/login/google/callback")
+def google_callback():
+    token = google.authorize_access_token()
+    user_info = google.parse_id_token(token)
+
+    email = user_info.get("email")
+    name = user_info.get("name")
+
+    user = User.query.filter_by(username=email).first()
+
+    if not user:
+        user = User(username=email, real_name=name, password="google_oauth_no_password")
+        db.session.add(user)
+        db.session.commit()
+
+    login_user(user)
+    flash(f"{name}님 구글 로그인 성공!", "success")
+    return redirect(url_for("home"))
