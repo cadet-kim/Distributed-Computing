@@ -81,3 +81,8 @@ class ProfileForm(FlaskForm):
     specialty = StringField('특징(자격증)', validators=[Optional(), Length(max=200)])
     submit    = SubmitField('저장')
     submit    = SubmitField('저장')
+
+class ScheduleForm(FlaskForm):
+    date = DateField('날짜', format='%Y-%m-%d', validators=[DataRequired()])
+    title = StringField('일정 제목', validators=[DataRequired(), Length(max=100)])
+    submit = SubmitField('일정 추가')

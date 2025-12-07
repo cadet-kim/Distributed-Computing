@@ -60,11 +60,14 @@
 
 /* 오늘 날짜 */
 .days li.active {
-  color: #fff;
+  color: #008aff;        /* 글자도 파란색으로 */
+  font-weight: 600;
 }
 
 .days li.active::before {
-  background: #008aff;
+  background: transparent;       /* 안은 투명 */
+  border: 2px solid #008aff;     /* 파란 테두리 */
+  border-radius: 6px;            /* 살짝 둥근 네모 */
 }
 
 /* hover highlight */
@@ -73,13 +76,13 @@
   position: absolute;
   height: 28px;
   width: 28px;
-  border-radius: 50%;
+  border-radius: 6px;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: -1;
 }
 
-.days li:hover::before {
+.days li:hover:not(.active)::before {
   background: #eaeaea;
 }

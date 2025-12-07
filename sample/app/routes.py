@@ -1,11 +1,11 @@
 from flask import render_template, url_for, flash, redirect, request, abort
 from app import app, db, bcrypt, google
-from app.forms import RegistrationForm, LoginForm, PostForm, ProfileForm, ChatForm  # ← ProfileForm 추가
-from app.models import User, Post, Message
+from app.forms import RegistrationForm, LoginForm, PostForm, ProfileForm, ChatForm, ScheduleForm  # ← ProfileForm 추가
+from app.models import User, Post, Message, Schedule
 from flask_login import login_user, current_user, logout_user, login_required
 from werkzeug.utils import secure_filename
 from config import Config
-from datetime import datetime
+from datetime import datetime, date
 import os
 from sqlalchemy import and_
 
@@ -53,12 +53,9 @@ def chat(post_id):
 @app.route("/home")
 @login_required
 def home():
-
     query = request.args.get("q", "").strip()
 
-
     base_query = Post.query.order_by(Post.date_posted.desc())
-
     if query:
         terms = query.split()
         filters = [Post.title.ilike(f"%{term}%") for term in terms]
@@ -67,6 +64,7 @@ def home():
     posts = base_query.all()
 
     return render_template("index.html", posts=posts, query=query)
+
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():

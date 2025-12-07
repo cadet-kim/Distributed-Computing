@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 from app import db, login_manager
 from flask_login import UserMixin
 
@@ -69,6 +69,21 @@ class Comment(db.Model):
 
     def __repr__(self):
         return f"Comment('{self.content}', '{self.date_posted}')"
+    
+class Schedule(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    # 어떤 게시글(멘토–멘티 매칭) 일정인지
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
+
+    # 하루 단위 일정이라고 가정
+    date = db.Column(db.Date, nullable=False)
+    title = db.Column(db.String(100), nullable=False)
+
+    # post 를 통해 mentor/mentee 를 알 수 있음
+    post = db.relationship('Post', backref=db.backref('schedules', lazy='dynamic'))
+
+    def __repr__(self):
+        return f"<Schedule {self.title} {self.date}>"
 
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
