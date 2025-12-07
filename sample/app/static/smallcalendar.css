@@ -86,3 +86,18 @@
 .days li:hover:not(.active)::before {
   background: #eaeaea;
 }
+
+/* 🔥 추가: 날짜가 보이도록 최소 높이 확보 */
+.calendar {
+  min-height: 240px;
+}
+
+/* 🔥 추가: wrapper가 내부 요소를 잘라내지 않도록 */
+.wrapper {
+  overflow: visible !important;
+}
+
+/* 🔥 추가: days 영역 확보 */
+.days {
+  min-height: 160px;
+}
