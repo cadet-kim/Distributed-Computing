@@ -362,6 +362,7 @@ def schedule_day(date_str):
 @app.route("/google_login")
 def google_login():
     redirect_uri = url_for("google_callback", _external=True)
+    print("DEBUG redirect_uri:", redirect_uri, flush=True)
     return google.authorize_redirect(redirect_uri)
 
 

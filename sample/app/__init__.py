@@ -4,6 +4,7 @@ from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from authlib.integrations.flask_client import OAuth
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 import os
 
@@ -15,6 +16,7 @@ app.config['PREFERRED_URL_SCHEME'] = 'https'
 app.config['GOOGLE_CLIENT_ID'] = '861514102522-c8vppikutcunjkj8qshqp2f5c76n926s.apps.googleusercontent.com'
 app.config['GOOGLE_CLIENT_SECRET'] = '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'
 app.config['GOOGLE_DISCOVERY_URL'] = 'https://accounts.google.com/.well-known/openid-configuration'
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
@@ -32,6 +34,7 @@ google = oauth.register(
     client_id=app.config['GOOGLE_CLIENT_ID'],
     client_secret=app.config['GOOGLE_CLIENT_SECRET'],
     server_metadata_url=app.config['GOOGLE_DISCOVERY_URL'],
+    api_base_url='https://www.googleapis.com/oauth2/v3/',
     client_kwargs={'scope': 'openid email profile'}
 )
 
