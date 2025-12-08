@@ -82,10 +82,6 @@ class Schedule(db.Model):
 
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
-
-
-
-
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
@@ -100,3 +96,28 @@ class Message(db.Model):
     sender = db.relationship('User', foreign_keys=[sender_id])
     receiver = db.relationship('User', foreign_keys=[receiver_id])
     post = db.relationship('Post', backref=db.backref('messages', lazy='dynamic'))
+
+class Notification(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    # 알림을 받을 사용자
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+    # 알림 내용
+    message = db.Column(db.String(200), nullable=False)
+
+    # 클릭 시 이동할 링크 (옵션)
+    link = db.Column(db.String(200))
+
+    # 읽었는지 여부
+    is_read = db.Column(db.Boolean, default=False)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship(
+        'User',
+        backref=db.backref('notifications', lazy='dynamic')
+    )
+
+    def __repr__(self):
+        return f"<Notification {self.user_id} {self.message}>"

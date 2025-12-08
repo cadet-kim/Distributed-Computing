@@ -1,7 +1,7 @@
-from flask import render_template, url_for, flash, redirect, request, abort
+from flask import render_template, url_for, flash, redirect, request, abort, jsonify
 from app import app, db, bcrypt, google
 from app.forms import RegistrationForm, LoginForm, PostForm, ProfileForm, ChatForm, ScheduleForm
-from app.models import User, Post, Message, Schedule
+from app.models import User, Post, Message, Schedule, Notification
 from flask_login import login_user, current_user, logout_user, login_required
 from werkzeug.utils import secure_filename
 from datetime import datetime
@@ -165,6 +165,13 @@ def apply_post(post_id):
         return redirect(url_for('post', post_id=post.id))
 
     post.applicant_id = current_user.id
+
+    notif = Notification(
+        user_id=post.user_id,  # 글 쓴 사람
+        message=f"'{post.title}' 글에 {current_user.username}님이 신청을 완료했습니다.",
+        link=url_for('post', post_id=post.id)
+    )
+
     db.session.commit()
 
     flash("신청 완료!", "success")
@@ -199,6 +206,14 @@ def chat(post_id):
             content=form.content.data
         )
         db.session.add(msg)
+
+        notif = Notification(
+            user_id=other_user.id,
+            message=f"'{post.title}' 채팅방에 {current_user.username}님이 새 메시지를 보냈습니다.",
+            link=url_for('chat', post_id=post.id)
+        )
+        db.session.add(notif)
+
         db.session.commit()
         return redirect(url_for('chat', post_id=post_id))
 
@@ -392,3 +407,23 @@ def google_callback():
     flash("Google 로그인 성공!", "success")
     return redirect(url_for("home"))
 
+@app.route("/notifications/poll")
+@login_required
+def poll_notifications():
+    # 아직 읽지 않은(not is_read) 알림만 가져오기
+    notifs = Notification.query.filter_by(
+        user_id=current_user.id,
+        is_read=False
+    ).order_by(Notification.created_at.asc()).all()
+
+    data = []
+    for n in notifs:
+        data.append({
+            "id": n.id,
+            "message": n.message,
+            "url": n.link
+        })
+        n.is_read = True  # 가져간 건 읽은 것으로 표시
+
+    db.session.commit()
+    return jsonify(data)

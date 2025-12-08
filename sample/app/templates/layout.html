@@ -64,5 +64,56 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
+  <!-- 알림을 띄울 컨테이너 -->
+  <div id="notif-container"
+     style="position: fixed; bottom: 20px; right: 20px; z-index: 1080;"></div>
+  <script>
+  // 알림 하나를 화면에 표시
+  function showNotification(n) {
+    const box = document.createElement("div");
+    box.className = "alert alert-info shadow-sm mb-2";
+    box.style.minWidth = "260px";
+
+    let html = `<div class="d-flex justify-content-between align-items-center">
+                  <span>${n.message}</span>`;
+    if (n.url) {
+      html += `<a href="${n.url}" class="btn btn-sm btn-outline-light ms-2">이동</a>`;
+    }
+    html += `</div>`;
+
+    box.innerHTML = html;
+
+    const container = document.getElementById("notif-container");
+    container.appendChild(box);
+
+    // 5초 후 자동으로 사라지게
+    setTimeout(() => {
+      box.remove();
+    }, 5000);
+  }
+
+  // 서버에서 새 알림 가져오기
+  async function fetchNotifications() {
+    try {
+      const resp = await fetch("{{ url_for('poll_notifications') }}");
+      if (!resp.ok) return;
+
+      const data = await resp.json();
+      data.forEach(showNotification);
+    } catch (e) {
+      console.error("알림 가져오기 오류:", e);
+    }
+  }
+
+  // 페이지 로드 후 일정 간격으로 폴링
+  {% if current_user.is_authenticated %}
+    // 처음 한 번
+    fetchNotifications();
+    // 5초마다 폴링
+    setInterval(fetchNotifications, 5000);
+  {% endif %}
+</script>
+
+
 </body>
 </html>
