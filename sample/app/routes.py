@@ -258,24 +258,43 @@ def new_schedule():
     form = ScheduleForm()
     selected_date = request.args.get("date")
 
-    if form.validate_on_submit():
-        new_s = Schedule(
-            user_id=current_user.id,
-            date=form.date.data,
-            title=form.title.data,
-            memo=form.memo.data,
-            color=form.color.data
-        )
-        db.session.add(new_s)
-        db.session.commit()
+    # POST 요청 처리
+    if request.method == "POST":
+        color = request.form.get("color")
 
-        flash("일정 추가 완료!", "success")
-        return redirect(url_for("schedule_day", date_str=form.date.data.strftime("%Y-%m-%d")))
+        # color가 선택되지 않았다면 에러 처리
+        if not color:
+            flash("색상을 선택해주세요!", "danger")
+            return render_template("new_schedule.html", form=form)
 
+        if form.validate_on_submit():
+            new_s = Schedule(
+                user_id=current_user.id,
+                date=form.date.data,
+                title=form.title.data,
+                memo=form.memo.data,
+                color=color
+            )
+            db.session.add(new_s)
+            db.session.commit()
+
+            flash("일정 추가 완료!", "success")
+            return redirect(url_for(
+                "schedule_day",
+                date_str=form.date.data.strftime("%Y-%m-%d")
+            ))
+        else:
+            # 디버깅용 (폼 검증 실패 시 원인 확인)
+            print("폼 에러:", form.errors)
+            flash("입력값이 올바르지 않습니다.", "danger")
+
+    # GET 요청일 때 날짜 세팅
     if selected_date:
         form.date.data = datetime.strptime(selected_date, "%Y-%m-%d").date()
 
     return render_template("new_schedule.html", form=form)
+
+
 
 
 # =====================================================
