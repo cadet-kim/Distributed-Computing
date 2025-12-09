@@ -26,16 +26,16 @@ class User(db.Model, UserMixin):
 
   
 
-    def get_mentor_activity_count(self):
-        """멘토 활동 횟수: 내가 쓴 글 중 신청이 완료된 글"""
-        return Post.query.filter_by(user_id=self.id).filter(Post.applicant_id != None).count()
+    #def get_mentor_activity_count(self):
+        #"""멘토 활동 횟수: 내가 쓴 글 중 신청이 완료된 글"""
+       # return Post.query.filter_by(user_id=self.id).filter(Post.applicant_id != None).count()
 
-    def get_mentee_activity_count(self):
-        """멘티 활동 횟수: 내가 신청자로 등록된 글"""
-        return Post.query.filter_by(applicant_id=self.id).count()
+   # def get_mentee_activity_count(self):
+        #"""멘티 활동 횟수: 내가 신청자로 등록된 글"""
+        #return Post.query.filter_by(applicant_id=self.id).count()
 
-    def __repr__(self):
-        return f"User('{self.username}')"
+    #def __repr__(self):
+       # return f"User('{self.username}')"
 
 
 class Post(db.Model):
@@ -44,20 +44,33 @@ class Post(db.Model):
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     content = db.Column(db.Text, nullable=False)
 
-    # ✅ 작성자(멘토)
+    # 작성자(멘토)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    # ✅ 신청자(멘티)
+
+    # 신청자(멘티)
     applicant_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
 
+    # 댓글
     comments = db.relationship(
         'Comment',
         backref='post',
         lazy=True,
-        cascade="all, delete-orphan"
+        cascade="all, delete-orphan",
+        passive_deletes=True
+    )
+
+    # 🔥 추가: 신청 정보(Message)도 Post 삭제 시 함께 삭제되도록 설정
+    messages = db.relationship(
+        'Message',
+        backref='post',
+        lazy=True,
+        cascade="all, delete-orphan",
+        passive_deletes=True
     )
 
     def __repr__(self):
         return f"Post('{self.title}', '{self.date_posted}')"
+
 
 
 class Comment(db.Model):
@@ -84,7 +97,12 @@ class Schedule(db.Model):
 
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
+
+    post_id = db.Column(
+        db.Integer,
+        db.ForeignKey('post.id', ondelete="CASCADE"),
+        nullable=False
+    )
 
     sender_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -92,10 +110,13 @@ class Message(db.Model):
     content = db.Column(db.Text, nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
-    # 관계 (선택적으로 달아주면 편함)
+    # 관계 설정
     sender = db.relationship('User', foreign_keys=[sender_id])
     receiver = db.relationship('User', foreign_keys=[receiver_id])
-    post = db.relationship('Post', backref=db.backref('messages', lazy='dynamic'))
+
+    # backref 제거 → Post 모델에서 통합 관리
+    # 관계는 Post 모델의 messages relationship이 담당함
+
 
 class Notification(db.Model):
     id = db.Column(db.Integer, primary_key=True)
