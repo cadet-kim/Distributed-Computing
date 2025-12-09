@@ -45,12 +45,23 @@ def home():
     # 현재 페이지 (기본값 1)
     page = request.args.get("page", 1, type=int)
 
-    schedules = []
+    # 🔹 일정 데이터 로드 (핵심!!)
+    user_schedules = Schedule.query.filter_by(user_id=current_user.id).all()
 
-    # 기본 쿼리
+    schedules = [
+        {
+            "id": s.id,
+            "date": s.date.strftime("%Y-%m-%d"),
+            "title": s.title,
+            "memo": s.memo,
+            "color": s.color
+        }
+        for s in user_schedules
+    ]
+
+    # 게시글 검색/페이지네이션 처리
     base_query = Post.query.order_by(Post.date_posted.desc())
 
-    # 검색어가 있다면 제목에서 단어들 AND 검색
     if query:
         terms = query.split()
         base_query = base_query.join(User, Post.user_id == User.id)
@@ -64,11 +75,9 @@ def home():
             ))
         base_query = base_query.filter(and_(*filters))
 
-    # 🔹 페이지네이션: 한 페이지에 6개
     pagination = base_query.paginate(page=page, per_page=6, error_out=False)
     posts = pagination.items
 
-    # 🔹 페이지 번호 블록 계산 (5개씩: 1~5, 6~10, ...)
     block_size = 5
     total_pages = pagination.pages or 1
     current_page = pagination.page
@@ -88,7 +97,7 @@ def home():
         "index.html",
         posts=posts,
         query=query,
-        schedules=schedules,
+        schedules=schedules,   # 🔥 달력에 필요한 일정 JSON 전달
         page=current_page,
         total_pages=total_pages,
         page_numbers=page_numbers,
