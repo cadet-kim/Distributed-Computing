@@ -6,4 +6,4 @@ Flask-WTF
 Flask-MIGRATE
 django-allauth
 Authlib
-gunicorn
+Gunicorn
