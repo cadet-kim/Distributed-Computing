@@ -5,7 +5,7 @@ from app.models import User, Post, Message, Schedule, Notification
 from flask_login import login_user, current_user, logout_user, login_required
 from werkzeug.utils import secure_filename
 from datetime import datetime
-from sqlalchemy import and_
+from sqlalchemy import and_, or_
 import os
 
 UPLOAD_FOLDER = os.path.join(os.getcwd(), 'app', 'static', 'profile_pics')
@@ -25,35 +25,57 @@ def index():
 @app.route("/home")
 @login_required
 def home():
+    # 검색어
     query = request.args.get("q", "").strip()
+
+    # 현재 페이지 (기본값 1)
+    page = request.args.get("page", 1, type=int)
+
+    schedules = []
+
+    # 기본 쿼리
     base_query = Post.query.order_by(Post.date_posted.desc())
 
+    # 검색어가 있다면 제목에서 단어들 AND 검색
     if query:
         terms = query.split()
         filters = [Post.title.ilike(f"%{term}%") for term in terms]
         base_query = base_query.filter(and_(*filters))
 
-    posts = base_query.all()
+    # 🔹 페이지네이션: 한 페이지에 6개
+    pagination = base_query.paginate(page=page, per_page=6, error_out=False)
+    posts = pagination.items
 
-    schedules = Schedule.query.filter_by(user_id=current_user.id).all()
+    # 🔹 페이지 번호 블록 계산 (5개씩: 1~5, 6~10, ...)
+    block_size = 5
+    total_pages = pagination.pages or 1
+    current_page = pagination.page
 
-    schedules_json = [
-        {
-            "id": s.id,
-            "date": s.date.strftime("%Y-%m-%d"),
-            "title": s.title,
-            "memo": s.memo,
-            "color": s.color
-        }
-        for s in schedules
-    ]
+    current_block = (current_page - 1) // block_size
+    block_start = current_block * block_size + 1
+    block_end = min(block_start + block_size - 1, total_pages)
+
+    page_numbers = list(range(block_start, block_end + 1))
+
+    show_prev_block = block_start > 1
+    show_next_block = block_end < total_pages
+    prev_block_page = block_start - 1
+    next_block_page = block_end + 1
 
     return render_template(
         "index.html",
         posts=posts,
         query=query,
-        schedules=schedules_json
+        schedules=schedules,
+        page=current_page,
+        total_pages=total_pages,
+        page_numbers=page_numbers,
+        show_prev_block=show_prev_block,
+        show_next_block=show_next_block,
+        prev_block_page=prev_block_page,
+        next_block_page=next_block_page,
     )
+
 
 
 # =====================================================
@@ -189,41 +211,59 @@ def apply_post(post_id):
 @app.route("/chat/<int:post_id>", methods=['GET', 'POST'])
 @login_required
 def chat(post_id):
-    p = Post.query.get_or_404(post_id)
+    post = Post.query.get_or_404(post_id)
 
-    if not p.applicant_id:
-        flash("아직 신청자가 없습니다.", "warning")
-        return redirect(url_for('post', post_id=post_id))
+    # 1) 이 글이 신청 완료 상태인지 확인
+    if not post.applicant_id:
+        flash("아직 신청이 완료되지 않은 게시글입니다.", "warning")
+        return redirect(url_for('post', post_id=post.id))
 
-    if current_user.id not in [p.user_id, p.applicant_id]:
-        flash("채팅 권한이 없습니다.", "danger")
+    # 2) 현재 사용자가 채팅 참여자인지 확인 (작성자 or 신청자)
+    if current_user.id not in [post.user_id, post.applicant_id]:
+        flash("이 채팅에 참여할 권한이 없습니다.", "danger")
         return redirect(url_for('home'))
 
-    other = User.query.get(p.applicant_id if current_user.id == p.user_id else p.user_id)
+    # ✅ 3) 여기서 other_user를 항상 먼저 계산 (GET/POST 공통)
+    if current_user.id == post.user_id:
+        other_user = User.query.get(post.applicant_id)
+    else:
+        other_user = User.query.get(post.user_id)
 
     form = ChatForm()
 
     if form.validate_on_submit():
         msg = Message(
-            post_id=post_id,
+            post_id=post.id,
             sender_id=current_user.id,
-            receiver_id=other.id,
+            receiver_id=other_user.id,   # ← 여기서 other_user 사용 가능
             content=form.content.data
         )
         db.session.add(msg)
-
-        notif = Notification(
-            user_id=other_user.id,
-            message=f"'{post.title}' 채팅방에 {current_user.username}님이 새 메시지를 보냈습니다.",
-            link=url_for('chat', post_id=post.id)
-        )
-        db.session.add(notif)
-
         db.session.commit()
-        return redirect(url_for('chat', post_id=post_id))
 
-    messages = Message.query.filter_by(post_id=post_id).order_by(Message.timestamp.asc()).all()
-    return render_template("chat.html", post=p, messages=messages, other_user=other, form=form)
+        # (알림 기능을 쓰고 있다면 여기서 Notification 생성하면 됨)
+        # notif = Notification(
+        #     user_id=other_user.id,
+        #     message=f"'{post.title}' 채팅에 새 메시지가 있습니다.",
+        #     url=url_for('chat', post_id=post.id)
+        # )
+        # db.session.add(notif)
+        # db.session.commit()
+
+        return redirect(url_for('chat', post_id=post.id))
+
+    # 이 게시글에 대한 기존 메시지 (오래된 순으로)
+    messages = Message.query.filter_by(post_id=post.id) \
+                            .order_by(Message.timestamp.asc()) \
+                            .all()
+
+    return render_template(
+        "chat.html",
+        post=post,
+        other_user=other_user,   # ← 템플릿에서 쓰는 변수
+        messages=messages,
+        form=form
+    )
 
 
 # =====================================================
@@ -475,3 +515,58 @@ def require_profile_complete():
     if ep not in allowed_endpoints:
         return redirect(url_for("profile"))
     
+@app.route("/chats")
+@login_required
+def chats():
+    # 현재 유저가 참여자인 채팅(신청 완료된 글)만 가져오기
+    posts = Post.query.filter(
+        Post.applicant_id.isnot(None),
+        or_(
+            Post.user_id == current_user.id,      # 내가 글쓴이이거나
+            Post.applicant_id == current_user.id  # 내가 신청자이거나
+        )
+    ).order_by(Post.date_posted.desc()).all()
+
+    chat_items = []
+    for post in posts:
+        # 상대방 결정
+        if current_user.id == post.user_id:
+            other = post.applicant
+        else:
+            other = post.author
+
+        # 마지막 메시지
+        last_msg = Message.query.filter_by(post_id=post.id)\
+                                .order_by(Message.timestamp.desc())\
+                                .first()
+
+        chat_items.append({
+            "post": post,
+            "other": other,
+            "last_msg": last_msg,
+        })
+
+    return render_template("chats.html", chats=chat_items)
+
+@app.route("/chat/<int:post_id>/messages")
+@login_required
+def chat_messages(post_id):
+    post = Post.query.get_or_404(post_id)
+
+    # 참여자인지 확인 (안 그러면 남의 채팅도 볼 수 있게 됨)
+    if not post.applicant_id or current_user.id not in [post.user_id, post.applicant_id]:
+        abort(403)
+
+    messages = Message.query.filter_by(post_id=post.id)\
+                            .order_by(Message.timestamp.asc()).all()
+
+    data = []
+    for m in messages:
+        data.append({
+            "id": m.id,
+            "sender_id": m.sender_id,
+            "sender_name": m.sender.real_name or m.sender.username,
+            "content": m.content,
+            "timestamp": m.timestamp.strftime('%Y-%m-%d %H:%M'),
+        })
+    return jsonify(data)

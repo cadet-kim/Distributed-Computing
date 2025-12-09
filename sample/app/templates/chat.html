@@ -23,50 +23,7 @@
       border-radius: 15px;
       border: 1px solid #e5e5e5;
   ">
-
-    {% for msg in messages %}
-      <div class="mb-3">
-
-        {% if msg.sender_id == current_user.id %}
-        <!-- 내가 보낸 메시지 (오른쪽) -->
-        <div class="d-flex justify-content-end">
-          <div style="
-              background-color:#0095f6;
-              color:white;
-              padding:10px 14px;
-              border-radius:18px;
-              max-width:65%;
-              word-wrap:break-word;
-          ">
-            <div class="small text-end" style="color:#dceaff; font-size:11px;">
-              {{ msg.timestamp.strftime('%Y-%m-%d %H:%M') }}
-            </div>
-            <div>{{ msg.content|e }}</div>
-          </div>
-        </div>
-
-        {% else %}
-        <!-- 상대가 보낸 메시지 (왼쪽) -->
-        <div class="d-flex justify-content-start">
-          <div style="
-              background-color:#efefef;
-              padding:10px 14px;
-              border-radius:18px;
-              max-width:65%;
-              word-wrap:break-word;
-          ">
-            <div class="small" style="color:#999; font-size:11px;">
-              {{ msg.timestamp.strftime('%Y-%m-%d %H:%M') }}
-            </div>
-            <div>{{ msg.content|e }}</div>
-          </div>
-        </div>
-        {% endif %}
-
-      </div>
-    {% else %}
-      <p class="text-muted">아직 주고받은 메시지가 없습니다. 첫 메시지를 보내보세요!</p>
-    {% endfor %}
+    {# 처음 서버에서 렌더링한 내용은 없어도 되고, JS가 채워 넣을 거라 비워둬도 됨 #}
   </div>
 
   <!-- 입력 폼 (인스타 DM 스타일) -->
@@ -87,13 +44,81 @@
   </form>
 
 </div>
-{% endblock content %}
 
-{% block scripts %}
+{# 🔽 여기서부터 JS: 자동 새로고침 #}
 <script>
   const chatBox = document.getElementById('chat-box');
-  if (chatBox) {
+  const currentUserId = {{ current_user.id }};  // 내 아이디를 JS로 넘김
+
+  // 메시지 배열을 받아서 화면에 그려주는 함수
+  function renderMessages(messages) {
+    chatBox.innerHTML = "";
+
+    messages.forEach(m => {
+      const wrapper = document.createElement("div");
+      wrapper.className = "mb-3";
+
+      if (m.sender_id === currentUserId) {
+        // 내가 보낸 메시지(오른쪽)
+        wrapper.innerHTML = `
+          <div class="d-flex justify-content-end">
+            <div style="
+                background-color:#0095f6;
+                color:white;
+                padding:10px 14px;
+                border-radius:18px;
+                max-width:65%;
+                word-wrap:break-word;
+            ">
+              <div class="small text-end" style="color:#dceaff; font-size:11px;">
+                ${m.timestamp}
+              </div>
+              <div>${m.content}</div>
+            </div>
+          </div>
+        `;
+      } else {
+        // 상대가 보낸 메시지(왼쪽)
+        wrapper.innerHTML = `
+          <div class="d-flex justify-content-start">
+            <div style="
+                background-color:#efefef;
+                padding:10px 14px;
+                border-radius:18px;
+                max-width:65%;
+                word-wrap:break-word;
+            ">
+              <div class="small" style="color:#999; font-size:11px;">
+                ${m.timestamp}
+              </div>
+              <div>${m.content}</div>
+            </div>
+          </div>
+        `;
+      }
+
+      chatBox.appendChild(wrapper);
+    });
+
+    // 항상 맨 아래로 스크롤
     chatBox.scrollTop = chatBox.scrollHeight;
   }
+
+  // 서버에서 메시지 목록 JSON으로 가져오기
+  async function reloadMessages() {
+    try {
+      const resp = await fetch("{{ url_for('chat_messages', post_id=post.id) }}");
+      if (!resp.ok) return;
+      const data = await resp.json();
+      renderMessages(data);
+    } catch (e) {
+      console.error("채팅 불러오기 오류:", e);
+    }
+  }
+
+  // 처음 1번 로딩 + 3초마다 새로고침
+  reloadMessages();
+  setInterval(reloadMessages, 3000);
 </script>
-{% endblock %}
+
+{% endblock content %}
