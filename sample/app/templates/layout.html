@@ -31,10 +31,12 @@
 
         {% if current_user.is_authenticated %}
             <a class="nav-link text-light" href="{{ url_for('chats') }}">채팅</a>
-            <a class="nav-link text-light" href="{{ url_for('my_posts') }}">내 글</a>
+            <a class="btn btn-outline-light btn-sm" href="{{ url_for('my_posts') }}">
+              <i class="fa-solid fa-pen"></i>내 글
+            </a>
             <a class="btn btn-outline-light btn-sm" href="{{ url_for('new_post') }}">
               <i class="fa-solid fa-pen"></i> 새 글 작성
-            </a>
+            </a>  
             <a class="btn btn-outline-light btn-sm" href="{{ url_for('profile') }}">
               <i class="fa-solid fa-user"></i> 내 프로필
             </a>
