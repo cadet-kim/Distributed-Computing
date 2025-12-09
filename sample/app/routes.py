@@ -446,3 +446,32 @@ def is_profile_complete(user):
         getattr(user, "company", None) and
         getattr(user, "grade", None)
     )
+
+@app.before_request
+def require_profile_complete():
+    """
+    로그인한 사용자가 프로필(이름, 중대, 학년)을 다 채우기 전까지는
+    /profile, /logout, 정적파일(static) 말고는 이동 못하게 막는다.
+    """
+    # 로그인 안 되어 있으면 신경 안 씀
+    if not current_user.is_authenticated:
+        return
+
+    # 프로필이 이미 완성되어 있으면 통과
+    if is_profile_complete(current_user):
+        return
+
+    # 허용할 endpoint 목록 (여기는 이동 가능)
+    allowed_endpoints = {
+        "profile",          # 프로필 작성 페이지
+        "logout",           # 로그아웃은 항상 허용
+        "static",           # CSS, JS, 이미지 로딩
+    }
+
+    # request.endpoint가 없을 수도 있으니 방어 코드
+    ep = request.endpoint
+
+    # 프로필 미완성 + 허용되지 않은 곳으로 가려면 → profile로 강제 이동
+    if ep not in allowed_endpoints:
+        return redirect(url_for("profile"))
+    
