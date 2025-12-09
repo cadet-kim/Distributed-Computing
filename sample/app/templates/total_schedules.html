@@ -4,30 +4,41 @@
 <div class="container mt-4">
     <h2 class="mb-4">내 일정 전체 보기</h2>
 
-    {% if schedules %}
-        {% for s in schedules %}
-            <div class="card mb-3" style="border-left: 8px solid {{ s.color }};">
-                <div class="card-body">
-                    <h5 class="card-title">{{ s.title }}</h5>
-                    <h6 class="card-subtitle text-muted">
-                        {{ s.date.strftime("%Y-%m-%d") }}
-                    </h6>
+    <div class="schedule-container">
+        <div class="schedule-grid">
 
-                    {% if s.memo %}
-                        <p class="card-text mt-2">{{ s.memo }}</p>
-                    {% endif %}
+            {% if schedules %}
+                {% for schedule in schedules %}
+                <div class="schedule-card">
 
-                    <a href="{{ url_for('schedule_detail', schedule_id=s.id) }}"
-                        class="btn btn-primary btn-sm mt-2">
-                        상세보기
-                    </a>
+                    <!-- 왼쪽 컬러 바 -->
+                    <div class="schedule-color-bar"></div>
+
+                    <!-- 일정 정보 -->
+                    <div class="schedule-title">{{ schedule.title }}</div>
+                    <div class="schedule-date">{{ schedule.date }}</div>
+                    <div class="schedule-content">{{ schedule.content }}</div>
+                    <div class="schedule-color-bar" style="background: {{ schedule.color }}"></div>
+
+
+                    <!-- 삭제 폼 -->
+                    <form action="{{ url_for('delete_schedule', schedule_id=schedule.id) }}"
+                          method="POST"
+                          onsubmit="return confirm('정말 삭제하시겠습니까?');">
+
+                        <button type="submit" class="schedule-delete-btn">삭제</button>
+                    </form>
 
                 </div>
-            </div>
-        {% endfor %}
-    {% else %}
-        <p>등록된 일정이 없습니다.</p>
-    {% endif %}
+                {% endfor %}
+            {% else %}
+                <p>등록된 일정이 없습니다.</p>
+            {% endif %}
+
+        </div>
+    </div>
+
 </div>
 
 {% endblock %}
+    

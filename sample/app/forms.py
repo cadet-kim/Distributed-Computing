@@ -10,6 +10,8 @@ from app.models import User
 from wtforms.fields import DateField
 from wtforms.validators import DataRequired, Length, EqualTo, ValidationError, Regexp, Optional
 
+from wtforms import SelectField
+
 class ChatForm(FlaskForm):
     content = TextAreaField('메시지', validators=[DataRequired(), Length(min=1, max=1000)])
     submit = SubmitField('전송')
@@ -68,8 +70,16 @@ class CommentForm(FlaskForm):
     
 
 class ProfileForm(FlaskForm):
-    company   = StringField('중대', validators=[Optional(), Length(max=20)])
-    grade     = StringField('학년', validators=[Optional(), Length(max=10)])
+    company = SelectField(
+    '중대',
+    choices=[('1', '1중대'), ('2', '2중대'), ('3', '3중대'),
+             ('4', '4중대'), ('5', '5중대'), ('6', '6중대'),
+             ('7', '7중대'), ('8', '8중대')],
+    validators=[DataRequired()])
+    grade = SelectField(
+    '학년',
+    choices=[('1', '1학년'), ('2', '2학년'), ('3', '3학년'), ('4', '4학년')],
+    validators=[DataRequired()])
     real_name = StringField('이름', validators=[Optional(), Length(max=50)])
     birthdate = DateField('생년월일', format='%Y-%m-%d', validators=[Optional()])
     specialty = StringField('특징(자격증)', validators=[Optional(), Length(max=200)])

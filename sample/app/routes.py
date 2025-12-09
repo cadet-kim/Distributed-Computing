@@ -703,3 +703,4 @@ def my_posts():
         prev_block_page=prev_block_page,
         next_block_page=next_block_page,
     )
+

@@ -45,13 +45,26 @@
     <div class="row">
       <div class="col-md-6 mb-3">
         <label class="form-label fw-semibold">중대</label>
-        <input type="text" name="company" class="form-control" value="{{ user.company or '' }}">
-      </div>
-      <div class="col-md-6 mb-3">
-        <label class="form-label fw-semibold">학년</label>
-        <input type="text" name="grade" class="form-control" value="{{ user.grade or '' }}">
-      </div>
-    </div>
+        <select name="company" class="form-control">
+          <option value="">중대를 선택하세요</option>
+          {% for i in range(1, 9) %}
+            <option value="{{ i }}" {% if user.company == i|string %}selected{% endif %}>{{ i }}중대</option>
+          {% endfor %}
+      </select>
+   </div>
+
+   <div class="col-md-6 mb-3">
+    <label class="form-label fw-semibold">학년</label>
+    <select name="grade" class="form-control">
+      <option value="">학년을 선택하세요</option>
+      {% for i in range(1, 5) %}
+        <option value="{{ i }}" {% if user.grade == i|string %}selected{% endif %}>{{ i }}학년</option>
+      {% endfor %}
+    </select>
+  </div>
+</div>
+
+
 
     <div class="mb-3">
       <label class="form-label fw-semibold">특징 (잘하는 분야)</label>

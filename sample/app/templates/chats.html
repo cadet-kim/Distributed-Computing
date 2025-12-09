@@ -1,37 +1,42 @@
 {% extends "layout.html" %}
 {% block content %}
 
-<h1 class="mb-4">채팅</h1>
+<div class="chat-list-container">
 
-{% if chats %}
-  <div class="list-group">
     {% for c in chats %}
-      <a href="{{ url_for('chat', post_id=c.post.id) }}"
-         class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-        <div>
-          <div class="fw-bold">
-            {{ c.other.real_name or c.other.username }}
-          </div>
-          <div class="small text-muted">
-            {{ c.post.title }}
-          </div>
-          {% if c.last_msg %}
-            <div class="small mt-1">
-              {{ c.last_msg.content[:40] }}{% if c.last_msg.content|length > 40 %}...{% endif %}
+    <a href="{{ url_for('chat', post_id=c.post.id) }}" class="chat-item">
+
+        <div class="chat-item-left">
+
+            <!-- 사용자 이름 -->
+            <div class="chat-user-name">
+                <strong>사용자 :</strong> {{ c.other.real_name or c.other.username }}
             </div>
-          {% endif %}
+
+            <!-- 마지막 메시지 -->
+            <div class="chat-last-msg mt-1">
+                <strong>메시지 :</strong>
+                {% if c.last_msg %}
+                    {{ c.last_msg.content[:40] }}
+                    {% if c.last_msg.content|length > 40 %}...{% endif %}
+                {% else %}
+                    없음
+                {% endif %}
+            </div>
+
         </div>
 
-        {% if c.last_msg %}
-          <small class="text-muted">
-            {{ c.last_msg.timestamp.strftime('%Y-%m-%d %H:%M') }}
-          </small>
-        {% endif %}
-      </a>
-    {% endfor %}
-  </div>
-{% else %}
-  <p class="text-muted">진행 중인 채팅이 없습니다.</p>
-{% endif %}
+        <!-- 시간 -->
+        <div class="chat-item-right text-muted">
+            {% if c.last_msg %}
+                {{ c.last_msg.timestamp.strftime('%Y-%m-%d %H:%M') }}
+            {% endif %}
+        </div>
 
-{% endblock content %}
+    </a>
+    {% endfor %}
+
+</div>
+
+{% endblock %}
+

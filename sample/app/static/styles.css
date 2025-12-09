@@ -151,31 +151,34 @@ article.profile h2 {
    🔵 2단 메뉴 헤더 (sticky-top)
 ============================================================ */
 .menu-header {
-  background: #ffffff;
-  border-bottom: 1px solid #e8e8e8;
+  background: #007E6E;          /* 초록색 배경 */
+  border-bottom: 1px solid #628141;
   height: 55px;
   display: flex;
   align-items: center;
   z-index: 999;
 }
 
+/* 메뉴 ul */
 .menu-list {
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
+/* 메뉴 링크 기본 색 */
 .menu-link {
   text-decoration: none;
   font-size: 17px;
   font-weight: 600;
-  color: #222;
+  color: #ffffff;               /* 글자 색 흰색 */
   padding: 6px 3px;
 }
 
+/* 메뉴 hover */
 .menu-link:hover {
-  color: #0095f6;
-  border-bottom: 2px solid #0095f6;
+  color: #d4f8da;               /* 연한 초록-화이트 느낌 */
+  border-bottom: 2px solid #c3f7c8;
 }
 
 
@@ -194,3 +197,148 @@ article.profile h2 {
    (main-navbar, nav-btn 등 삭제 완료)
 ============================================================ */
 
+/* 일정 전체 컨테이너 */
+.schedule-container {
+    max-width: 1000px;
+    margin-left: 0;   /* 왼쪽 정렬 */
+    margin-right: 0;
+}
+
+/* 그리드(2열 반응형) */
+.schedule-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 20px;
+}
+
+/* 카드 */
+.schedule-card {
+    position: relative;
+    background: #ffffff;
+    padding: 18px 20px 45px;   /* 아래 공간 확보(삭제 버튼 자리) */
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+/* 카드 왼쪽 컬러바 */
+.schedule-color-bar {
+    width: 6px;
+    height: 100%;
+    background: #4CAF50;
+    position: absolute;
+    left: 0;
+    top: 0;
+    border-radius: 10px 0 0 10px;
+}
+
+/* 제목 */
+.schedule-title {
+    font-size: 20px;     /* 기존보다 크게 */
+    font-weight: 700;    /* 굵게 */
+    color: #222;
+    margin-bottom: 12px;
+}
+
+
+/* 날짜 */
+.schedule-date {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 5px;
+}
+
+/* 내용 */
+.schedule-content {
+    font-size: 15px;
+    color: #444;
+    margin-bottom: 12px;
+    line-height: 1.5;
+    white-space: pre-line;  /* 줄바꿈 유지 */
+}
+
+
+/* 삭제 버튼 오른쪽 아래 고정 */
+.schedule-delete-btn {
+    position: absolute;
+    bottom: 10px;
+    right: 15px;
+    background: #dc3545;
+    border: none;
+    color: white;
+    padding: 4px 10px;
+    font-size: 12px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.schedule-delete-btn:hover {
+    background: #b02a37;
+}
+
+
+/* ============================================================
+   셀렉트시 흔들리는 문제 수정
+   ============================================================ */
+select.form-control {
+    min-height: 45px;
+    height: 45px !important;
+}
+
+
+/* 🔥 게시글 상세 버튼 통일 스타일 */
+.post-btn {
+    padding: 6px 14px !important;
+    font-size: 14px !important;
+    height: 40px !important;
+    display: 80px !important;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px !important;
+}
+
+/*=====================================================
+    채팅함 수정
+=====================================================*/
+
+.chat-list-container {
+    max-width: 900px;
+    margin: auto;
+}
+
+.chat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 18px 22px;
+    border-radius: 10px;
+    border: 1px solid #eee;
+    margin-bottom: 14px;
+    text-decoration: none;
+    color: #333;
+    transition: 0.15s;
+}
+
+.chat-item:hover {
+    background: #f7f7f7;
+    transform: translateY(-2px);
+}
+
+.chat-user-name {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.chat-last-msg {
+    font-size: 14px;
+    color: #666;
+    max-width: 600px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chat-item-right {
+    font-size: 13px;
+}
