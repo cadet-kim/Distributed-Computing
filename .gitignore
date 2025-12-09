@@ -1,0 +1,13 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# SQLite DB files
+*.db
+*.sqlite
+*.sqlite3
+
+# Flask instance folder
+instance/
