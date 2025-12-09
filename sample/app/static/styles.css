@@ -1,9 +1,16 @@
+/* ===============================
+   기본 Body 스타일
+================================ */
 body {
   background: #fafafa;
   color: #333333;
-  margin-top: 5rem;
+  margin: 0;
+  padding: 0;
 }
 
+/* ===============================
+   게시글 UI
+================================ */
 .content-section {
   background: #ffffff;
   padding: 20px 20px;
@@ -37,11 +44,12 @@ a.article-title:hover {
 }
 
 .comment-section {
-    margin-top: 2rem;
+  margin-top: 2rem;
 }
 
-
-/* view_profile 간결 정보형 */
+/* ===============================
+   프로필 카드 UI
+================================ */
 section.wrap {
   width: 380px;
   margin: 50px auto;
@@ -52,42 +60,31 @@ section.wrap {
   text-align: center;
 }
 
-/* 메뉴 */
-nav.menu {
-  display: flex;
-  justify-content: flex-end;
-}
-.menu-btn {
-  background: none;
-  border: none;
-  font-size: 22px;
-  cursor: pointer;
-}
-
-/* 이름, 정보 */
 article.profile h2 {
   font-weight: 700;
   font-size: 24px;
   color: #222;
   margin-bottom: 8px;
 }
+
 .grade-company {
   color: #555;
   font-size: 15px;
   margin-bottom: 3px;
 }
+
 .specialty {
   font-size: 15px;
   color: #0077b6;
   margin-bottom: 5px;
 }
+
 .birthdate {
   color: #666;
   font-size: 14px;
   margin-bottom: 10px;
 }
 
-/* 활동 요약 */
 .activity-summary {
   background: #f0fbff;
   border-radius: 15px;
@@ -95,9 +92,105 @@ article.profile h2 {
   margin-top: 10px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
+
 .activity-summary p {
   font-size: 14px;
   color: #333;
   margin: 4px 0;
 }
+
+
+
+/* ============================================================
+   🔵 1단 헤더 (학술정보원 스타일 — 스크롤 시 숨김)
+============================================================ */
+.top-header {
+  background: #ffffff;
+  border-bottom: 1px solid #e8e8e8;
+  height: 85px;
+  display: flex;
+  align-items: center;
+  transition: all 0.35s ease;
+  overflow: hidden;
+  z-index: 900;
+}
+
+.top-header.header-hide {
+  height: 0;
+  opacity: 0;
+  overflow: hidden;
+}
+
+/* 로고 */
+.site-logo {
+  height: 50px;
+}
+
+/* 제목 */
+.brand-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #222;
+}
+
+/* 오른쪽 링크 */
+.top-link {
+  text-decoration: none;
+  font-size: 15px;
+  color: #444;
+  font-weight: 500;
+}
+
+.top-link:hover {
+  color: #0095f6;
+}
+
+
+
+/* ============================================================
+   🔵 2단 메뉴 헤더 (sticky-top)
+============================================================ */
+.menu-header {
+  background: #ffffff;
+  border-bottom: 1px solid #e8e8e8;
+  height: 55px;
+  display: flex;
+  align-items: center;
+  z-index: 999;
+}
+
+.menu-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.menu-link {
+  text-decoration: none;
+  font-size: 17px;
+  font-weight: 600;
+  color: #222;
+  padding: 6px 3px;
+}
+
+.menu-link:hover {
+  color: #0095f6;
+  border-bottom: 2px solid #0095f6;
+}
+
+
+
+/* ============================================================
+   🔵 메인 콘텐츠 여백 (헤더와 겹치지 않도록)
+============================================================ */
+.page-content {
+  margin-top: 40px;
+}
+
+
+
+/* ============================================================
+   불필요한 예전 nav 스타일 제거됨
+   (main-navbar, nav-btn 등 삭제 완료)
+============================================================ */
 
