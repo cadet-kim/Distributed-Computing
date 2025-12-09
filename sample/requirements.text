@@ -7,3 +7,9 @@ Flask-MIGRATE
 django-allauth
 Authlib
 Gunicorn
+Flask-Cors
+email-validator
+WTForms
+requests
+python-dotenv
+Pillow
