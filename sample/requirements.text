@@ -3,10 +3,9 @@ Flask-SQLAlchemy
 Flask-Login
 Flask-Bcrypt
 Flask-WTF
-Flask-MIGRATE
-django-allauth
+Flask-Migrate
 Authlib
-Gunicorn
+gunicorn
 Flask-Cors
 email-validator
 WTForms
