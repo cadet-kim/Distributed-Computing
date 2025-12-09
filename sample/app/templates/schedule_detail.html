@@ -1,15 +1,38 @@
-{% extends "layout.html" %}
+{{% extends "layout.html" %}
 {% block content %}
 
-<h2>{{ schedule.title }}</h2>
+<div class="container mt-4">
+    <h2>{{ schedule.title }}</h2>
 
-<p><strong>날짜:</strong> {{ schedule.date }}</p>
-<p><strong>내용:</strong> {{ schedule.content }}</p>
+    <p class="text-muted">
+        <strong>날짜:</strong> {{ schedule.date.strftime("%Y-%m-%d") }}
+    </p>
 
-<form action="{{ url_for('delete_schedule', schedule_id=schedule.id) }}"
-      method="POST"
-      onsubmit="return confirm('정말 삭제할까요?');">
-    <button type="submit" class="btn btn-danger">삭제</button>
-</form>
+    {% if schedule.memo %}
+        <p><strong>메모:</strong><br>{{ schedule.memo }}</p>
+    {% endif %}
+
+    <div class="mt-4 d-flex gap-2">
+        <!-- 수정 버튼 -->
+        <a href="{{ url_for('edit_schedule', schedule_id=schedule.id) }}" class="btn btn-warning">
+            <i class="fa-solid fa-pen-to-square"></i> 수정
+        </a>
+
+        <!-- 삭제 버튼 -->
+        <form action="{{ url_for('delete_schedule', schedule_id=schedule.id) }}"
+              method="POST"
+              onsubmit="return confirm('정말 삭제할까요?');">
+            <button type="submit" class="btn btn-danger">
+                <i class="fa-solid fa-trash"></i> 삭제
+            </button>
+        </form>
+
+        <!-- 전체 일정 페이지로 이동 -->
+        <a href="{{ url_for('total_schedules') }}" class="btn btn-secondary ms-2">
+            전체 일정 보기
+        </a>
+    </div>
+</div>
 
 {% endblock %}
+

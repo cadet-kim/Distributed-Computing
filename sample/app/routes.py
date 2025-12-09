@@ -1,14 +1,27 @@
-from flask import render_template, url_for, flash, redirect, request, abort, jsonify
+from flask import (
+    render_template, url_for, flash, redirect,
+    request, abort, jsonify
+)
 from app import app, db, bcrypt, google
-from app.forms import RegistrationForm, LoginForm, PostForm, ProfileForm, ChatForm, ScheduleForm
+from app.forms import (
+    RegistrationForm, LoginForm, PostForm,
+    ProfileForm, ChatForm, ScheduleForm
+)
 from app.models import User, Post, Message, Schedule, Notification
-from flask_login import login_user, current_user, logout_user, login_required
+from flask_login import (
+    login_user, current_user,
+    logout_user, login_required
+)
 from werkzeug.utils import secure_filename
 from datetime import datetime
 from sqlalchemy import and_
 import os
 
-UPLOAD_FOLDER = os.path.join(os.getcwd(), 'app', 'static', 'profile_pics')
+
+# =====================================================
+# 파일 저장 경로
+# =====================================================
+UPLOAD_FOLDER = os.path.join(os.getcwd(), "app", "static", "profile_pics")
 
 
 # =====================================================
@@ -20,7 +33,7 @@ def index():
 
 
 # =====================================================
-# Home (게시판 + 달력)
+# 홈 + 게시판 + 캘린더
 # =====================================================
 @app.route("/home")
 @login_required
@@ -30,13 +43,12 @@ def home():
 
     if query:
         terms = query.split()
-        filters = [Post.title.ilike(f"%{term}%") for term in terms]
+        filters = [Post.title.ilike(f"%{t}%") for t in terms]
         base_query = base_query.filter(and_(*filters))
 
     posts = base_query.all()
 
     schedules = Schedule.query.filter_by(user_id=current_user.id).all()
-
     schedules_json = [
         {
             "id": s.id,
@@ -59,36 +71,37 @@ def home():
 # =====================================================
 # 회원가입
 # =====================================================
-@app.route("/register", methods=['GET', 'POST'])
+@app.route("/register", methods=["GET", "POST"])
 def register():
     if current_user.is_authenticated:
-        return redirect(url_for('home'))
+        return redirect(url_for("home"))
 
     form = RegistrationForm()
 
     if form.validate_on_submit():
-        if form.invite_code.data != '54321':
+        if form.invite_code.data != "54321":
             flash("인증 코드가 올바르지 않습니다.", "danger")
             return render_template("register.html", form=form)
 
         hashed_pw = bcrypt.generate_password_hash(form.password.data).decode("utf-8")
-        user = User(username=form.username.data, password=hashed_pw)
-        db.session.add(user)
+        new_user = User(username=form.username.data, password=hashed_pw)
+
+        db.session.add(new_user)
         db.session.commit()
 
         flash("회원가입 완료!", "success")
-        return redirect(url_for('login'))
+        return redirect(url_for("login"))
 
     return render_template("register.html", form=form)
 
 
 # =====================================================
-# 로그인/로그아웃
+# 로그인 / 로그아웃
 # =====================================================
-@app.route("/login", methods=['GET', 'POST'])
+@app.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('home'))
+        return redirect(url_for("home"))
 
     form = LoginForm()
 
@@ -97,11 +110,11 @@ def login():
 
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user)
-            # 🔵 프로필 완성 여부 체크
+
             if not is_profile_complete(user):
-                flash("처음 로그인하셨네요. 프로필 정보를 먼저 입력해 주세요.", "info")
-                return redirect(url_for('profile'))
-            
+                flash("처음 로그인하셨네요. 프로필을 먼저 작성해주세요!", "info")
+                return redirect(url_for("profile"))
+
             flash("로그인 성공!", "success")
             return redirect(url_for("home"))
 
@@ -119,16 +132,22 @@ def logout():
 # =====================================================
 # 게시글 CRUD
 # =====================================================
-@app.route("/post/new", methods=['GET', 'POST'])
+@app.route("/post/new", methods=["GET", "POST"])
 @login_required
 def new_post():
     form = PostForm()
+
     if form.validate_on_submit():
-        post = Post(title=form.title.data, content=form.content.data, author=current_user)
+        post = Post(
+            title=form.title.data,
+            content=form.content.data,
+            author=current_user
+        )
         db.session.add(post)
         db.session.commit()
+
         flash("게시글 등록 완료!", "success")
-        return redirect(url_for('home'))
+        return redirect(url_for("home"))
 
     return render_template("create_post.html", form=form)
 
@@ -139,7 +158,7 @@ def post(post_id):
     return render_template("post.html", post=p)
 
 
-@app.route("/post/<int:post_id>/delete", methods=['POST'])
+@app.route("/post/<int:post_id>/delete", methods=["POST"])
 @login_required
 def delete_post(post_id):
     p = Post.query.get_or_404(post_id)
@@ -149,58 +168,58 @@ def delete_post(post_id):
 
     db.session.delete(p)
     db.session.commit()
-    flash("삭제 완료!", "success")
-    return redirect(url_for('home'))
+
+    flash("게시글 삭제 완료!", "success")
+    return redirect(url_for("home"))
 
 
 # =====================================================
-# 게시글 신청 기능 (merge 중 사라졌던 부분 복구)
+# 게시글 신청
 # =====================================================
-@app.route("/post/<int:post_id>/apply", methods=['POST'])
+@app.route("/post/<int:post_id>/apply", methods=["POST"])
 @login_required
 def apply_post(post_id):
-    post = Post.query.get_or_404(post_id)
+    p = Post.query.get_or_404(post_id)
 
-    if post.author == current_user:
+    if p.author == current_user:
         flash("자기 글에는 신청할 수 없습니다.", "danger")
-        return redirect(url_for('post', post_id=post.id))
+        return redirect(url_for("post", post_id=p.id))
 
-    if post.applicant_id:
-        flash("이미 신청 완료된 글입니다.", "warning")
-        return redirect(url_for('post', post_id=post.id))
+    if p.applicant_id:
+        flash("이미 신청된 글입니다.", "warning")
+        return redirect(url_for("post", post_id=p.id))
 
-    post.applicant_id = current_user.id
+    p.applicant_id = current_user.id
 
     notif = Notification(
-        user_id=post.user_id,  # 글 쓴 사람
-        message=f"'{post.title}' 글에 {current_user.username}님이 신청을 완료했습니다.",
-        link=url_for('post', post_id=post.id)
+        user_id=p.user_id,
+        message=f"'{p.title}' 글에 {current_user.username}님이 신청했습니다.",
+        link=url_for("post", post_id=p.id)
     )
-
+    db.session.add(notif)
     db.session.commit()
 
     flash("신청 완료!", "success")
-    return redirect(url_for("chat", post_id=post.id))
+    return redirect(url_for("chat", post_id=p.id))
 
 
 # =====================================================
 # 채팅
 # =====================================================
-@app.route("/chat/<int:post_id>", methods=['GET', 'POST'])
+@app.route("/chat/<int:post_id>", methods=["GET", "POST"])
 @login_required
 def chat(post_id):
     p = Post.query.get_or_404(post_id)
 
     if not p.applicant_id:
         flash("아직 신청자가 없습니다.", "warning")
-        return redirect(url_for('post', post_id=post_id))
+        return redirect(url_for("post", post_id=post_id))
 
     if current_user.id not in [p.user_id, p.applicant_id]:
         flash("채팅 권한이 없습니다.", "danger")
-        return redirect(url_for('home'))
+        return redirect(url_for("home"))
 
     other = User.query.get(p.applicant_id if current_user.id == p.user_id else p.user_id)
-
     form = ChatForm()
 
     if form.validate_on_submit():
@@ -213,23 +232,23 @@ def chat(post_id):
         db.session.add(msg)
 
         notif = Notification(
-            user_id=other_user.id,
-            message=f"'{post.title}' 채팅방에 {current_user.username}님이 새 메시지를 보냈습니다.",
-            link=url_for('chat', post_id=post.id)
+            user_id=other.id,
+            message=f"{current_user.username}님이 새 메시지를 보냈습니다.",
+            link=url_for("chat", post_id=p.id)
         )
         db.session.add(notif)
 
         db.session.commit()
-        return redirect(url_for('chat', post_id=post_id))
+        return redirect(url_for("chat", post_id=post_id))
 
-    messages = Message.query.filter_by(post_id=post_id).order_by(Message.timestamp.asc()).all()
-    return render_template("chat.html", post=p, messages=messages, other_user=other, form=form)
+    msgs = Message.query.filter_by(post_id=post_id).order_by(Message.timestamp.asc()).all()
+    return render_template("chat.html", post=p, messages=msgs, other_user=other, form=form)
 
 
 # =====================================================
-# 프로필
+# 프로필 / 프로필 보기
 # =====================================================
-@app.route("/profile", methods=['GET', 'POST'], endpoint="profile")
+@app.route("/profile", methods=["GET", "POST"], endpoint="profile")
 @login_required
 def profile():
     if request.method == "POST":
@@ -250,7 +269,7 @@ def profile():
             try:
                 current_user.birthdate = datetime.strptime(birth, "%Y-%m-%d").date()
             except:
-                flash("날짜 형식 오류!", "warning")
+                flash("생년월일 형식 오류!", "warning")
 
         db.session.commit()
         flash("프로필 수정 완료!", "success")
@@ -259,9 +278,6 @@ def profile():
     return render_template("profile.html", user=current_user)
 
 
-# =====================================================
-# 🔥 빠져있던 view_profile 복구 (BuildError 원인 해결)
-# =====================================================
 @app.route("/profile/<int:user_id>")
 @login_required
 def view_profile(user_id):
@@ -270,19 +286,46 @@ def view_profile(user_id):
 
 
 # =====================================================
-# 일정 추가
+# 프로필 완성 여부 체크
 # =====================================================
+def is_profile_complete(user):
+    return bool(
+        getattr(user, "real_name", None)
+        and getattr(user, "company", None)
+        and getattr(user, "grade", None)
+    )
+
+
+@app.before_request
+def require_profile_complete():
+    if not current_user.is_authenticated:
+        return
+
+    if is_profile_complete(current_user):
+        return
+
+    allowed = {"profile", "logout", "static"}
+
+    ep = request.endpoint
+
+    if ep not in allowed:
+        return redirect(url_for("profile"))
+
+
+# =====================================================
+# 일정 — 전체 기능 구현
+# =====================================================
+
+# 일정 새로 추가
 @app.route("/schedule/new", methods=["GET", "POST"])
 @login_required
 def new_schedule():
     form = ScheduleForm()
     selected_date = request.args.get("date")
 
-    # POST 요청 처리
     if request.method == "POST":
         color = request.form.get("color")
 
-        # color가 선택되지 않았다면 에러 처리
         if not color:
             flash("색상을 선택해주세요!", "danger")
             return render_template("new_schedule.html", form=form)
@@ -298,28 +341,53 @@ def new_schedule():
             db.session.add(new_s)
             db.session.commit()
 
-            flash("일정 추가 완료!", "success")
-            return redirect(url_for(
-                "schedule_day",
-                date_str=form.date.data.strftime("%Y-%m-%d")
-            ))
-        else:
-            # 디버깅용 (폼 검증 실패 시 원인 확인)
-            print("폼 에러:", form.errors)
-            flash("입력값이 올바르지 않습니다.", "danger")
+            flash("일정이 추가되었습니다!", "success")
+            return redirect(
+                url_for("schedule_day", date_str=form.date.data.strftime("%Y-%m-%d"))
+            )
 
-    # GET 요청일 때 날짜 세팅
     if selected_date:
         form.date.data = datetime.strptime(selected_date, "%Y-%m-%d").date()
 
     return render_template("new_schedule.html", form=form)
 
 
+# 일정 상세 보기
+@app.route("/schedule/detail/<int:schedule_id>")
+@login_required
+def schedule_detail(schedule_id):
+    s = Schedule.query.get_or_404(schedule_id)
+
+    if s.user_id != current_user.id:
+        abort(403)
+
+    return render_template("schedule_detail.html", schedule=s)
 
 
-# =====================================================
+# 일정 수정
+@app.route("/schedule/<int:schedule_id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_schedule(schedule_id):
+    s = Schedule.query.get_or_404(schedule_id)
+
+    if s.user_id != current_user.id:
+        abort(403)
+
+    if request.method == "POST":
+        s.title = request.form["title"]
+        s.date = datetime.strptime(request.form["date"], "%Y-%m-%d").date()
+        s.memo = request.form.get("memo", "")
+        s.color = request.form.get("color", s.color)
+
+        db.session.commit()
+        flash("일정이 수정되었습니다!", "success")
+
+        return redirect(url_for("schedule_detail", schedule_id=s.id))
+
+    return render_template("edit_schedule.html", schedule=s)
+
+
 # 일정 삭제
-# =====================================================
 @app.route("/schedule/delete/<int:schedule_id>", methods=["POST"])
 @login_required
 def delete_schedule(schedule_id):
@@ -328,19 +396,14 @@ def delete_schedule(schedule_id):
     if s.user_id != current_user.id:
         abort(403)
 
-    date_str = s.date.strftime("%Y-%m-%d")
-
     db.session.delete(s)
     db.session.commit()
 
-    flash("일정 삭제 완료!", "success")
+    flash("일정이 삭제되었습니다!", "success")
+    return redirect(url_for("total_schedules"))
 
-    return redirect(url_for("schedule_day", date_str=date_str))
 
-
-# =====================================================
-# 일정 날짜별 보기
-# =====================================================
+# 날짜별 일정 보기
 @app.route("/schedule/<string:date_str>")
 @login_required
 def schedule_day(date_str):
@@ -351,13 +414,12 @@ def schedule_day(date_str):
         return redirect(url_for("home"))
 
     day_schedules = Schedule.query.filter_by(
-        user_id=current_user.id,
-        date=date_obj
+        user_id=current_user.id, date=date_obj
     ).all()
 
     all_schedules = Schedule.query.filter_by(user_id=current_user.id).all()
 
-    schedules_json = [
+    schedule_data = [
         {
             "id": s.id,
             "date": s.date.strftime("%Y-%m-%d"),
@@ -372,8 +434,19 @@ def schedule_day(date_str):
         "schedule_day.html",
         schedules=day_schedules,
         date=date_str,
-        schedule_data=schedules_json
+        schedule_data=schedule_data
     )
+
+
+# 전체 일정 보기
+@app.route("/total_schedules")
+@login_required
+def total_schedules():
+    all_schedules = Schedule.query.filter_by(
+        user_id=current_user.id
+    ).order_by(Schedule.date.asc()).all()
+
+    return render_template("total_schedules.html", schedules=all_schedules)
 
 
 # =====================================================
@@ -382,7 +455,6 @@ def schedule_day(date_str):
 @app.route("/google_login")
 def google_login():
     redirect_uri = url_for("google_callback", _external=True)
-    print("DEBUG redirect_uri:", redirect_uri, flush=True)
     return google.authorize_redirect(redirect_uri)
 
 
@@ -404,27 +476,28 @@ def google_callback():
     user = User.query.filter_by(username=email).first()
 
     if not user:
-        user = User(username=email, password="google_oauth")  # 임시 패스워드
+        user = User(username=email, password="google_oauth")
         db.session.add(user)
         db.session.commit()
 
     login_user(user)
 
-    # 🔵 구글 로그인도 프로필 체크
     if not is_profile_complete(user):
-        flash("프로필 정보를 먼저 입력해 주세요.", "info")
+        flash("프로필을 먼저 작성해주세요!", "info")
         return redirect(url_for("profile"))
-    
+
     flash("Google 로그인 성공!", "success")
     return redirect(url_for("home"))
 
+
+# =====================================================
+# 알림 폴링
+# =====================================================
 @app.route("/notifications/poll")
 @login_required
 def poll_notifications():
-    # 아직 읽지 않은(not is_read) 알림만 가져오기
     notifs = Notification.query.filter_by(
-        user_id=current_user.id,
-        is_read=False
+        user_id=current_user.id, is_read=False
     ).order_by(Notification.created_at.asc()).all()
 
     data = []
@@ -434,44 +507,7 @@ def poll_notifications():
             "message": n.message,
             "url": n.link
         })
-        n.is_read = True  # 가져간 건 읽은 것으로 표시
+        n.is_read = True
 
     db.session.commit()
     return jsonify(data)
-
-def is_profile_complete(user):
-    # 이름(real_name), 중대(company), 학년(grade)가 모두 채워져 있어야 완성
-    return bool(
-        getattr(user, "real_name", None) and
-        getattr(user, "company", None) and
-        getattr(user, "grade", None)
-    )
-
-@app.before_request
-def require_profile_complete():
-    """
-    로그인한 사용자가 프로필(이름, 중대, 학년)을 다 채우기 전까지는
-    /profile, /logout, 정적파일(static) 말고는 이동 못하게 막는다.
-    """
-    # 로그인 안 되어 있으면 신경 안 씀
-    if not current_user.is_authenticated:
-        return
-
-    # 프로필이 이미 완성되어 있으면 통과
-    if is_profile_complete(current_user):
-        return
-
-    # 허용할 endpoint 목록 (여기는 이동 가능)
-    allowed_endpoints = {
-        "profile",          # 프로필 작성 페이지
-        "logout",           # 로그아웃은 항상 허용
-        "static",           # CSS, JS, 이미지 로딩
-    }
-
-    # request.endpoint가 없을 수도 있으니 방어 코드
-    ep = request.endpoint
-
-    # 프로필 미완성 + 허용되지 않은 곳으로 가려면 → profile로 강제 이동
-    if ep not in allowed_endpoints:
-        return redirect(url_for("profile"))
-    
