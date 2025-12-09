@@ -40,6 +40,7 @@ def index():
 def home():
     # 검색어
     query = request.args.get("q", "").strip()
+    page = request.args.get("page", 1, type=int)
 
     # 현재 페이지 (기본값 1)
     page = request.args.get("page", 1, type=int)
@@ -63,7 +64,15 @@ def home():
 
     if query:
         terms = query.split()
-        filters = [Post.title.ilike(f"%{t}%") for t in terms]
+        base_query = base_query.join(User, Post.user_id == User.id)
+        filters = []
+        for term in terms:
+            like = f"%{term}%"
+            filters.append(or_(
+                Post.title.ilike(like),          # 제목
+                User.username.ilike(like),       # 학번/아이디
+                User.real_name.ilike(like)       # 실명
+            ))
         base_query = base_query.filter(and_(*filters))
 
     pagination = base_query.paginate(page=page, per_page=6, error_out=False)
@@ -97,9 +106,6 @@ def home():
         prev_block_page=prev_block_page,
         next_block_page=next_block_page,
     )
-
-
-
 
 # =====================================================
 # 회원가입
@@ -655,3 +661,45 @@ def chat_messages(post_id):
             "timestamp": m.timestamp.strftime('%Y-%m-%d %H:%M'),
         })
     return jsonify(data)
+
+@app.route("/my_posts")
+@login_required
+def my_posts():
+    # 페이지 번호 (기본 1)
+    page = request.args.get("page", 1, type=int)
+
+    # 현재 로그인한 유저가 쓴 글만
+    base_query = Post.query.filter_by(user_id=current_user.id) \
+                           .order_by(Post.date_posted.desc())
+
+    # 한 페이지에 6개씩
+    pagination = base_query.paginate(page=page, per_page=6, error_out=False)
+    posts = pagination.items
+
+    # 아래는 home()에서 쓰는 것이랑 똑같은 페이지 번호 블록 계산
+    block_size = 5
+    total_pages = pagination.pages or 1
+    current_page = pagination.page
+
+    current_block = (current_page - 1) // block_size
+    block_start = current_block * block_size + 1
+    block_end = min(block_start + block_size - 1, total_pages)
+
+    page_numbers = list(range(block_start, block_end + 1))
+
+    show_prev_block = block_start > 1
+    show_next_block = block_end < total_pages
+    prev_block_page = block_start - 1
+    next_block_page = block_end + 1
+
+    return render_template(
+        "my_posts.html",
+        posts=posts,
+        page=current_page,
+        total_pages=total_pages,
+        page_numbers=page_numbers,
+        show_prev_block=show_prev_block,
+        show_next_block=show_next_block,
+        prev_block_page=prev_block_page,
+        next_block_page=next_block_page,
+    )
