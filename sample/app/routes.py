@@ -97,6 +97,11 @@ def login():
 
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user)
+            # 🔵 프로필 완성 여부 체크
+            if not is_profile_complete(user):
+                flash("처음 로그인하셨네요. 프로필 정보를 먼저 입력해 주세요.", "info")
+                return redirect(url_for('profile'))
+            
             flash("로그인 성공!", "success")
             return redirect(url_for("home"))
 
@@ -404,6 +409,12 @@ def google_callback():
         db.session.commit()
 
     login_user(user)
+
+    # 🔵 구글 로그인도 프로필 체크
+    if not is_profile_complete(user):
+        flash("프로필 정보를 먼저 입력해 주세요.", "info")
+        return redirect(url_for("profile"))
+    
     flash("Google 로그인 성공!", "success")
     return redirect(url_for("home"))
 
@@ -427,3 +438,11 @@ def poll_notifications():
 
     db.session.commit()
     return jsonify(data)
+
+def is_profile_complete(user):
+    # 이름(real_name), 중대(company), 학년(grade)가 모두 채워져 있어야 완성
+    return bool(
+        getattr(user, "real_name", None) and
+        getattr(user, "company", None) and
+        getattr(user, "grade", None)
+    )

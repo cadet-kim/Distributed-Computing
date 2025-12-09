@@ -21,21 +21,6 @@
                     {% endif %}
                 </div>
 
-                {# 사용자 이름(표시명) - 새로 추가 #}
-                <div class="form-group mb-3">
-                    {{ form.display_name.label(class="form-control-label") }}
-                    {% if form.display_name.errors %}
-                        {{ form.display_name(class="form-control form-control-lg is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.display_name.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        {{ form.display_name(class="form-control form-control-lg", placeholder="예: 김정현") }}
-                    {% endif %}
-                </div>
-
                 {# 비밀번호 #}
                 <div class="form-group mb-3">
                     {{ form.password.label(class="form-control-label") }}

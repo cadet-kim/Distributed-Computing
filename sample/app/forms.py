@@ -25,12 +25,6 @@ class RegistrationForm(FlaskForm):
         ]
     )
 
-    # 사용자 이름(표시명)
-    display_name = StringField(
-        '사용자 이름',
-        validators=[DataRequired(), Length(min=1, max=30)]
-    )
-
     password = PasswordField(
         '비밀번호',
         validators=[DataRequired(), Length(min=6, max=128)]
