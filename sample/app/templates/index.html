@@ -114,6 +114,46 @@
       <p class="text-muted">게시글이 없습니다. 첫 글을 작성해 보세요.</p>
     {% endif %}
 
+    {% if total_pages > 1 %}
+      <nav aria-label="페이지 네비게이션" class="mt-4">
+        <ul class="pagination justify-content-center">
+
+          {# ← 블록 이동 #}
+          {% if show_prev_block %}
+            <li class="page-item">
+              <a class="page-link"
+                 href="{{ url_for('home', page=prev_block_page, q=query) }}"
+                 aria-label="이전">
+                &laquo;
+              </a>
+            </li>
+          {% endif %}
+
+          {# 가운데 페이지 번호들 (예: 1 2 3 4 5) #}
+          {% for p in page_numbers %}
+            <li class="page-item {% if p == page %}active{% endif %}">
+              <a class="page-link"
+                 href="{{ url_for('home', page=p, q=query) }}">
+                {{ p }}
+              </a>
+            </li>
+          {% endfor %}
+
+          {# → 블록 이동 #}
+          {% if show_next_block %}
+            <li class="page-item">
+              <a class="page-link"
+                 href="{{ url_for('home', page=next_block_page, q=query) }}"
+                 aria-label="다음">
+                &raquo;
+              </a>
+            </li>
+          {% endif %}
+
+        </ul>
+      </nav>
+    {% endif %}
+
   </div> <!-- end col-md-9 -->
 
 </div> <!-- end row -->
