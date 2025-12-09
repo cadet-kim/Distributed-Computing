@@ -3,43 +3,38 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  
-  <!-- Bootstrap -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" />
 
- 
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  
-  <!-- Small Calendar CSS (중요) -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='smallcalendar.css') }}">
-
-
-
-  <style>
-    .applied-card {
-      background-color: #dee2e6;
-    }
-  </style>
 
   <title>육군사관학교 게시판{% if title %} - {{ title }}{% endif %}</title>
 </head>
 
 <body>
 
-  <!-- NAVBAR -->
-  <nav class="navbar navbar-dark bg-dark">
-    <div class="container d-flex align-items-center">
-      <a class="navbar-brand" href="{{ url_for('home') }}">육군사관학교 게시판</a>
+<!-- ===================== ◆ 1단 상단 큰 헤더 ◆ ===================== -->
+<header class="top-header" id="topHeader">
+  <div class="container d-flex justify-content-between align-items-center header-inner">
+
+    <!-- 왼쪽: 로고 + 사이트명 -->
+    <div class="d-flex align-items-center">
+      <img src="{{ url_for('static', filename='profile_pics/default.jpg') }}
+" class="site-logo">
+      <span class="brand-title ms-2">육군사관학교 게시판</span>
 
       <div class="ms-auto d-flex align-items-center gap-3">
         <a class="nav-link text-light" href="{{ url_for('home') }}">Home</a>
 
         {% if current_user.is_authenticated %}
             <a class="nav-link text-light" href="{{ url_for('chats') }}">채팅</a>
-          <a class="btn btn-outline-light btn-sm" href="{{ url_for('new_post') }}">
+            <a class="btn btn-outline-light btn-sm" href="{{ url_for('my_posts') }}">
+              <i class="fa-solid fa-pen"></i> 내 글
+            </a>
+            <a class="btn btn-outline-light btn-sm" href="{{ url_for('new_post') }}">
               <i class="fa-solid fa-pen"></i> 새 글 작성
             </a>
             <a class="btn btn-outline-light btn-sm" href="{{ url_for('profile') }}">
@@ -56,74 +51,127 @@
           <a class="nav-link text-light" href="{{ url_for('register') }}">회원가입</a>
         {% endif %}
       </div>
+
     </div>
-  </nav>
 
-  <!-- MAIN -->
-  <main class="container my-4">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <div class="alert alert-{{ category }}">{{ message }}</div>
-        {% endfor %}
+    <!-- 오른쪽: 프로필/일정/로그아웃 -->
+    <div class="d-flex align-items-center gap-4">
+      {% if current_user.is_authenticated %}
+        <a class="top-link" href="{{ url_for('logout') }}">로그아웃</a>
+      {% else %}
+        <a class="top-link" href="{{ url_for('login') }}">로그인</a>
+        <a class="top-link" href="{{ url_for('register') }}">회원가입</a>
       {% endif %}
-    {% endwith %}
+    </div>
 
-    {% block content %}{% endblock %}
-  </main>
+  </div>
+</header>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- 알림을 띄울 컨테이너 -->
-  <div id="notif-container"
-     style="position: fixed; bottom: 20px; right: 20px; z-index: 1080;"></div>
-  <script>
-  // 알림 하나를 화면에 표시
-  function showNotification(n) {
-    const box = document.createElement("div");
-    box.className = "alert alert-info shadow-sm mb-2";
-    box.style.minWidth = "260px";
+<!-- ===================== ◆ 2단 메뉴 헤더 (스크롤 고정) ◆ ===================== -->
+<nav class="menu-header sticky-top">
+  <div class="container d-flex justify-content-center">
+    <ul class="menu-list d-flex gap-5">
 
-    let html = `<div class="d-flex justify-content-between align-items-center">
-                  <span>${n.message}</span>`;
-    if (n.url) {
-      html += `<a href="${n.url}" class="btn btn-sm btn-outline-light ms-2">이동</a>`;
-    }
-    html += `</div>`;
+      <li><a href="{{ url_for('home') }}" class="menu-link">Home</a></li>
 
-    box.innerHTML = html;
+      {% if current_user.is_authenticated %}
+        <li><a href="{{ url_for('chats') }}" class="menu-link">채팅함</a></li>
+        <li><a href="{{ url_for('new_post') }}" class="menu-link">새 글 작성</a></li>
+        <li><a href="{{ url_for('total_schedules') }}" class="menu-link">전체 일정</a></li>
+        <li><a href="{{ url_for('profile') }}" class="menu-link">My 프로필</a></li>
+      {% endif %}
 
-    const container = document.getElementById("notif-container");
-    container.appendChild(box);
+    </ul>
+  </div>
+</nav>
 
-    // 5초 후 자동으로 사라지게
-    setTimeout(() => {
-      box.remove();
-    }, 5000);
+
+<!-- ===================== ◆ 메인 콘텐츠 ◆ ===================== -->
+<main class="container page-content">
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  {% block content %}{% endblock %}
+
+</main>
+
+
+<!-- ===================== ◆ 알림 컨테이너 ◆ ===================== -->
+<div id="notif-container"
+     style="position: fixed; bottom: 20px; right: 20px; z-index: 1080;">
+</div>
+
+
+<!-- ===================== ◆ Bootstrap Script ◆ ===================== -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+
+<!-- ===================== ◆ 알림 스크립트 그대로 유지 ◆ ===================== -->
+<script>
+function showNotification(n) {
+  const box = document.createElement("div");
+  box.className = "alert alert-info shadow-sm mb-2";
+  box.style.minWidth = "260px";
+
+  let html = `<div class="d-flex justify-content-between align-items-center">
+                <span>${n.message}</span>`;
+  if (n.url) {
+    html += `<a href="${n.url}" class="btn btn-sm btn-outline-light ms-2">이동</a>`;
   }
+  html += `</div>`;
 
-  // 서버에서 새 알림 가져오기
-  async function fetchNotifications() {
-    try {
-      const resp = await fetch("{{ url_for('poll_notifications') }}");
-      if (!resp.ok) return;
+  box.innerHTML = html;
 
-      const data = await resp.json();
-      data.forEach(showNotification);
-    } catch (e) {
-      console.error("알림 가져오기 오류:", e);
-    }
+  const container = document.getElementById("notif-container");
+  container.appendChild(box);
+
+  // 5초 후 제거
+  setTimeout(() => box.remove(), 5000);
+}
+
+async function fetchNotifications() {
+  try {
+    const resp = await fetch("{{ url_for('poll_notifications') }}");
+    if (!resp.ok) return;
+
+    const data = await resp.json();
+    data.forEach(showNotification);
+  } catch (e) {
+    console.error("알림 가져오기 오류:", e);
   }
+}
 
-  // 페이지 로드 후 일정 간격으로 폴링
-  {% if current_user.is_authenticated %}
-    // 처음 한 번
-    fetchNotifications();
-    // 5초마다 폴링
-    setInterval(fetchNotifications, 5000);
-  {% endif %}
+{% if current_user.is_authenticated %}
+fetchNotifications();
+setInterval(fetchNotifications, 5000);
+{% endif %}
 </script>
 
+
+<!-- ===================== ◆ 스크롤 시 1단 헤더 숨김 ◆ ===================== -->
+<script>
+let lastScroll = 0;
+const topHeader = document.getElementById("topHeader");
+
+window.addEventListener("scroll", () => {
+    const current = window.scrollY;
+
+    if (current > lastScroll && current > 80) {
+        topHeader.classList.add("header-hide");
+    } else {
+        topHeader.classList.remove("header-hide");
+    }
+
+    lastScroll = current;
+});
+</script>
 
 </body>
 </html>
