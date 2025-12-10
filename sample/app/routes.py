@@ -312,9 +312,13 @@ def profile():
     if request.method == "POST":
         file = request.files.get("image")
 
-        if file:
+        if file and file.filename.strip() != "":
             filename = secure_filename(file.filename)
-            file.save(os.path.join(UPLOAD_FOLDER, filename))
+            os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+            file_path = os.path.join(UPLOAD_FOLDER, filename)
+            file.save(file_path)
+
+            # DB 업데이트
             current_user.image_file = filename
 
         current_user.real_name = request.form.get("real_name")

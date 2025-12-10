@@ -19,6 +19,7 @@ class User(db.Model, UserMixin):
     specialty = db.Column(db.String(30), nullable=True)
     birthdate = db.Column(db.Date, nullable=True)
     profile_image = db.Column(db.String(100), nullable=True, default='default.jpg')
+    image_file = db.Column(db.String(255), nullable=False, default='default.jpg')
 
     posts = db.relationship('Post', backref='author', lazy=True, foreign_keys='Post.user_id')
     applications = db.relationship('Post', backref='applicant', lazy=True, foreign_keys='Post.applicant_id')
